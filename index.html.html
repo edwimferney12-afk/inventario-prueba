@@ -1,0 +1,10238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Sistema de Inventario y Ventas</title>
+
+<style>
+
+:root{
+ --bg:#f3f5f8;
+ --panel:#fff;
+ --text:#172033;
+ --muted:#6b7280;
+ --primary:#2563eb;
+ --primary2:#1d4ed8;
+ --dark:#111827;
+ --border:#e5e7eb;
+ --danger:#dc2626;
+ --success:#059669;
+ --warning:#d97706
+}
+
+*{box-sizing:border-box}
+
+body{
+ margin:0;
+ font-family:Arial,Helvetica,sans-serif;
+ background:var(--bg);
+ color:var(--text)
+}
+
+button,input,select{font:inherit}
+button{cursor:pointer}
+
+.app{
+ display:flex;
+ min-height:100vh
+}
+
+.side{
+ position:fixed;
+ left:0;
+ top:0;
+ bottom:0;
+ width:250px;
+ background:var(--dark);
+ color:#fff;
+ padding:18px 14px;
+ z-index:20;
+ transition:.25s
+}
+
+.brand{
+ font-weight:700;
+ font-size:19px;
+ padding:8px 10px 20px
+}
+
+.brand small{
+ display:block;
+ color:#9ca3af;
+ font-size:11px;
+ margin-top:5px;
+ font-weight:400
+}
+
+.nav button{
+ width:100%;
+ border:0;
+ background:transparent;
+ color:#cbd5e1;
+ padding:11px 12px;
+ border-radius:9px;
+ text-align:left;
+ margin:2px 0
+}
+
+.nav button:hover,
+.nav button.active{
+ background:#1f2937;
+ color:#fff
+}
+
+.btn-cerrar-sesion{
+ width:100%;
+ border:0;
+ background:#7f1d1d;
+ color:#fff;
+ padding:11px 12px;
+ border-radius:9px;
+ text-align:left;
+ margin:14px 0 2px;
+ font-weight:600;
+ transition:.2s;
+}
+
+.btn-cerrar-sesion:hover{
+ background:#991b1b;
+}
+.main{
+ margin-left:250px;
+ width:calc(100% - 250px);
+ padding:18px;
+ min-width:0
+}
+
+.top{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ gap:10px;
+ margin-bottom:15px
+}
+
+.top h1{
+ margin:0;
+ font-size:24px
+}
+
+.top p{
+ margin:4px 0 0;
+ color:var(--muted);
+ font-size:13px
+}
+
+.hamb{
+ display:none;
+ border:0;
+ background:var(--dark);
+ color:#fff;
+ padding:9px 12px;
+ border-radius:8px
+}
+
+.section{display:none}
+.section.active{display:block}
+.hidden{
+ display:none!important;
+}
+
+.cards{
+ display:grid;
+ grid-template-columns:repeat(5,minmax(150px,1fr));
+ gap:12px
+}
+
+.card,
+.panel{
+ background:var(--panel);
+ border:1px solid var(--border);
+ border-radius:13px;
+ box-shadow:0 2px 8px rgba(0,0,0,.04)
+}
+
+.card{padding:15px}
+
+.card small{color:var(--muted)}
+
+.card strong{
+ display:block;
+ font-size:23px;
+ margin-top:7px
+}
+
+.grid2{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:14px;
+ margin-top:14px
+}
+
+.panel{padding:15px}
+
+.panel h2{
+ font-size:16px;
+ margin:0 0 12px
+}
+
+.tablewrap{overflow:auto}
+
+.table{
+ width:100%;
+ border-collapse:collapse;
+ font-size:12px
+}
+
+.table th,
+.table td{
+ padding:9px;
+ border-bottom:1px solid var(--border);
+ white-space:nowrap;
+ text-align:left
+}
+
+.table th{color:var(--muted)}
+
+.actions{
+ display:flex;
+ gap:7px;
+ flex-wrap:wrap
+}
+
+.btn{
+ border:0;
+ border-radius:8px;
+ padding:9px 12px;
+ background:#e5e7eb;
+ color:#111827
+}
+
+.btn.primary{
+ background:var(--primary);
+ color:#fff
+}
+
+.btn.primary:hover{
+ background:var(--primary2)
+}
+
+.btn.danger{
+ background:#fee2e2;
+ color:#991b1b
+}
+
+.btn.success{
+ background:#d1fae5;
+ color:#065f46
+}
+
+.btn.small{
+ padding:6px 9px;
+ font-size:11px
+}
+
+.formgrid{
+ display:grid;
+ grid-template-columns:repeat(4,minmax(150px,1fr));
+ gap:10px
+}
+
+.field label{
+ display:block;
+ font-size:11px;
+ color:var(--muted);
+ margin-bottom:5px
+}
+
+.field input,
+.field select{
+ width:100%;
+ border:1px solid var(--border);
+ border-radius:8px;
+ padding:9px;
+ background:#fff
+}
+
+.field input:focus,
+.field select:focus{
+ outline:2px solid #bfdbfe;
+ border-color:#93c5fd
+}
+
+.toolbar{
+ display:flex;
+ gap:8px;
+ flex-wrap:wrap;
+ margin-bottom:12px
+}
+
+.search{
+ flex:1;
+ min-width:210px
+}
+
+.pos{
+ display:grid;
+ grid-template-columns:1.45fr .85fr;
+ gap:14px
+}
+
+.summary{
+ position:sticky;
+ top:12px
+}
+
+.line{
+ display:flex;
+ justify-content:space-between;
+ gap:10px;
+ padding:8px 0;
+ border-bottom:1px solid var(--border);
+ font-size:13px
+}
+
+.total{
+ font-size:21px;
+ font-weight:700
+}
+
+.productbox{
+ border:1px dashed #cbd5e1;
+ border-radius:10px;
+ padding:11px;
+ margin-top:10px;
+ background:#f8fafc
+}
+
+.badge{
+ display:inline-block;
+ border-radius:999px;
+ padding:4px 7px;
+ font-size:10px;
+ font-weight:700
+}
+
+.green{
+ background:#d1fae5;
+ color:#065f46
+}
+
+.yellow{
+ background:#fef3c7;
+ color:#92400e
+}
+
+.red{
+ background:#fee2e2;
+ color:#991b1b
+}
+
+.empty{
+ padding:18px;
+ text-align:center;
+ color:var(--muted);
+ font-size:13px
+}
+
+.toast{
+ position:fixed;
+ right:18px;
+ bottom:18px;
+ background:#111827;
+ color:#fff;
+ padding:11px 14px;
+ border-radius:9px;
+ opacity:0;
+ transform:translateY(10px);
+ pointer-events:none;
+ transition:.2s;
+ z-index:50
+}
+
+.toast.show{
+ opacity:1;
+ transform:none
+}
+
+.muted{color:var(--muted)}
+.right{text-align:right}
+
+@media(max-width:1100px){
+
+ .cards{
+  grid-template-columns:repeat(3,1fr)
+ }
+
+ .formgrid{
+  grid-template-columns:repeat(2,minmax(150px,1fr))
+ }
+
+}
+
+@media(max-width:800px){
+
+ .side{
+  transform:translateX(-100%)
+ }
+
+ .side.open{
+  transform:translateX(0)
+ }
+
+ .main{
+  margin-left:0;
+  width:100%;
+  padding:12px
+ }
+
+ .hamb{
+  display:block
+ }
+
+ .pos,
+ .grid2{
+  grid-template-columns:1fr
+ }
+
+ .summary{
+  position:static
+ }
+
+ .cards{
+  grid-template-columns:repeat(2,1fr)
+ }
+
+}
+
+@media(max-width:520px){
+
+ .cards,
+ .formgrid{
+  grid-template-columns:1fr
+ }
+
+ .top h1{
+  font-size:20px
+ }
+
+ .pos{
+  grid-template-columns:1fr
+ }
+
+}
+
+.sale-head{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:10px;
+ margin-bottom:12px
+}
+
+.sale-product{
+ display:grid;
+ grid-template-columns:1.25fr 1fr;
+ gap:14px
+}
+
+.sale-selected{
+ display:grid;
+ grid-template-columns:repeat(4,1fr);
+ gap:8px;
+ margin-top:10px
+}
+
+.qtybox{
+ display:flex;
+ align-items:center;
+ gap:6px
+}
+
+.qtybox input{
+ text-align:center;
+ font-weight:700
+}
+
+.cart-selected{
+ background:#eff6ff!important;
+ outline:2px solid #93c5fd
+}
+
+.sale-totals{
+ font-size:14px
+}
+
+.sale-totals .grand{
+ font-size:24px;
+ font-weight:800;
+ padding-top:12px
+}
+
+.sale-buttons{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:8px
+}
+
+.ticket-area{
+ display:none
+}
+
+@media(max-width:900px){
+
+ .sale-product{
+  grid-template-columns:1fr
+ }
+
+ .sale-selected{
+  grid-template-columns:repeat(2,1fr)
+ }
+
+ .sale-head{
+  grid-template-columns:1fr
+ }
+
+}
+
+@media print{
+
+ body *{
+  visibility:hidden!important
+ }
+
+ #ticketPrint,
+ #ticketPrint *{
+  visibility:visible!important
+ }
+
+ #ticketPrint{
+  display:block!important;
+  position:absolute;
+  left:0;
+  top:0;
+  width:80mm;
+  padding:4mm;
+  background:#fff;
+  color:#000
+ }
+
+}
+/* =========================================================
+   PANTALLA DE INICIO DE SESIÓN
+   ========================================================= */
+
+.login-screen{
+  position:fixed;
+  inset:0;
+  min-height:100vh;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  padding:24px;
+
+  background:
+    radial-gradient(
+      circle at 15% 20%,
+      rgba(37,99,235,.16),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 85% 80%,
+      rgba(29,78,216,.12),
+      transparent 34%
+    ),
+    linear-gradient(
+      135deg,
+      #eef3fb 0%,
+      #f8fafc 48%,
+      #e8eef8 100%
+    );
+
+  overflow:auto;
+  z-index:1000;
+}
+
+
+/* TARJETA DEL LOGIN */
+
+.login-box{
+  width:min(430px,100%);
+
+  padding:34px 36px 30px;
+
+  background:rgba(255,255,255,.96);
+
+  border:1px solid rgba(255,255,255,.9);
+
+  border-radius:22px;
+
+  box-shadow:
+    0 24px 70px rgba(15,23,42,.14),
+    0 5px 18px rgba(15,23,42,.07);
+
+  text-align:left;
+
+  position:relative;
+}
+
+
+/* LINEA AZUL SUPERIOR */
+
+.login-box::before{
+  content:"";
+
+  position:absolute;
+
+  top:0;
+  left:12%;
+  right:12%;
+
+  height:4px;
+
+  border-radius:0 0 10px 10px;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--primary),
+      #60a5fa,
+      var(--primary2)
+    );
+}
+
+
+/* ICONO */
+
+.login-logo{
+  width:68px;
+  height:68px;
+
+  margin:0 auto 18px;
+
+  display:flex;
+
+  align-items:center;
+  justify-content:center;
+
+  border-radius:18px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #dbeafe,
+      #eff6ff
+    );
+
+  border:1px solid #bfdbfe;
+
+  box-shadow:
+    0 8px 22px rgba(37,99,235,.14);
+
+  font-size:32px;
+}
+
+
+/* TITULO */
+
+.login-box h1{
+  margin:0;
+
+  text-align:center;
+
+  font-size:27px;
+
+  line-height:1.2;
+
+  color:var(--dark);
+}
+
+
+/* TEXTO "INICIA SESIÓN..." */
+
+.login-box > .muted{
+  text-align:center;
+
+  margin:8px 0 25px;
+
+  font-size:13px;
+}
+
+
+/* ETIQUETAS */
+
+.login-box label{
+  display:block;
+
+  margin:14px 0 6px;
+
+  font-size:12px;
+
+  font-weight:700;
+
+  color:#374151;
+}
+
+
+/* CAMPOS */
+
+.login-box input{
+  width:100%;
+
+  height:46px;
+
+  padding:0 13px;
+
+  border:1px solid #dbe1ea;
+
+  border-radius:10px;
+
+  background:#f9fafb;
+
+  color:var(--text);
+
+  font-size:14px;
+
+  outline:none;
+
+  transition:.2s ease;
+
+  box-sizing:border-box;
+}
+
+
+/* PLACEHOLDER */
+
+.login-box input::placeholder{
+  color:#9ca3af;
+}
+
+
+/* CUANDO HACEMOS CLIC EN EL CAMPO */
+
+.login-box input:focus{
+  background:#fff;
+
+  border-color:#60a5fa;
+
+  box-shadow:
+    0 0 0 4px rgba(37,99,235,.10);
+}
+
+
+/* BOTON INGRESAR */
+
+.login-box .btn.primary{
+  height:46px;
+
+  border-radius:10px;
+
+  font-weight:700;
+
+  letter-spacing:.2px;
+
+  box-shadow:
+    0 8px 18px rgba(37,99,235,.20);
+
+  transition:.2s ease;
+}
+
+
+/* EFECTO DEL BOTON */
+
+.login-box .btn.primary:hover{
+  transform:translateY(-1px);
+
+  box-shadow:
+    0 11px 22px rgba(37,99,235,.25);
+}
+
+
+/* USUARIO INICIAL */
+
+.login-box > div:last-child{
+  color:#6b7280;
+}
+
+
+/* =========================================================
+   ADAPTACIÓN PARA PANTALLAS PEQUEÑAS
+   ========================================================= */
+
+@media(max-width:520px){
+
+  .login-screen{
+    padding:16px;
+  }
+
+  .login-box{
+    padding:30px 22px 25px;
+
+    border-radius:18px;
+  }
+
+  .login-logo{
+    width:60px;
+    height:60px;
+
+    font-size:28px;
+  }
+
+  .login-box h1{
+    font-size:23px;
+  }
+
+}
+
+/* AJUSTES PARA PRODUCTOS Y ENTRADAS EN CELULARES */
+@media (max-width: 800px) {
+
+  /* Evitar que los módulos sean más anchos que el celular */
+  .section,
+  .section.active,
+  .panel,
+  .tablewrap {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /* Los formularios se acomodan al ancho disponible */
+  .formgrid {
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+  }
+
+  /* Los campos no deben salirse de la pantalla */
+  .field,
+  .field input,
+  .field select {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /* Las tablas permiten desplazamiento horizontal */
+  .tablewrap {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table {
+    min-width: 600px;
+  }
+
+  /* Los botones pueden pasar a otra línea */
+  .toolbar,
+  .actions {
+    flex-wrap: wrap;
+  }
+
+  /* El contenido no debe empujar la pantalla */
+  .main {
+    min-width: 0;
+    overflow-x: hidden;
+  }
+}
+
+/* =========================================================
+   MODAL AUTORIZACIÓN ADMINISTRADOR
+   ========================================================= */
+
+.modal-overlay{
+
+ position:fixed;
+
+ inset:0;
+
+ background:rgba(0,0,0,.55);
+
+ display:flex;
+
+ align-items:center;
+
+ justify-content:center;
+
+ z-index:99999;
+
+ padding:20px;
+
+}
+
+
+.modal-box{
+
+ width:100%;
+
+ max-width:430px;
+
+ background:#fff;
+
+ border-radius:14px;
+
+ padding:24px;
+
+ box-shadow:0 20px 60px rgba(0,0,0,.30);
+
+}
+
+
+.modal-box h2{
+
+ margin-top:0;
+
+ margin-bottom:8px;
+
+}
+
+
+.modal-box input{
+
+ width:100%;
+
+ box-sizing:border-box;
+
+}
+
+
+.modal-box .actions{
+
+ display:flex;
+
+ gap:10px;
+
+}
+
+
+.modal-box .actions .btn{
+
+ flex:1;
+
+}
+
+
+@media(max-width:600px){
+
+ .modal-box{
+
+  max-width:100%;
+
+  padding:20px;
+
+ }
+
+}
+
+
+/* CORRECCIÓN DEL MÓDULO ENTRADAS EN CELULARES */
+@media (max-width: 800px) {
+
+  /* Poner Gestión de entrada arriba y Productos a registrar abajo */
+  #entradas > .grid2 {
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100%;
+    gap: 12px;
+  }
+
+  /* Evitar que los paneles se salgan de la pantalla */
+  #entradas .panel {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /* Acomodar las tarjetas de resumen */
+  #entradas .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px;
+  }
+
+  #entradas .card {
+    min-width: 0;
+    padding: 10px;
+  }
+
+  #entradas .card strong {
+    font-size: 20px;
+    overflow-wrap: anywhere;
+  }
+
+  /* Ajustar campos y buscadores */
+  #entradas .formgrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px;
+  }
+
+  #entradas .field,
+  #entradas input,
+  #entradas select {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  #entradas .toolbar {
+    width: 100%;
+  }
+
+  #entradas .toolbar .search,
+  #entradas #entrySearchList {
+    flex: 1 1 100%;
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* Mantener la tabla dentro de su panel */
+  #entradas .tablewrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  #entradas .table {
+    min-width: 600px;
+  }
+
+  /* Permitir que los botones se acomoden */
+  #entradas .actions {
+    flex-wrap: wrap;
+  }
+
+  #entradas .actions .btn {
+    max-width: 100%;
+    white-space: normal;
+  }
+}
+
+/* AJUSTE GENERAL PARA CELULARES: TODOS LOS MÓDULOS */
+@media (max-width: 800px) {
+
+  html,
+  body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .app,
+  .main,
+  .section,
+  .section.active,
+  .panel {
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .main {
+    width: 100%;
+    margin-left: 0;
+    padding: 12px;
+  }
+
+  .top {
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+
+  .top > div {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .grid2,
+  .pos,
+  .sale-product {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .formgrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .field,
+  .field input,
+  .field select,
+  .toolbar input {
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .tablewrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 520px) {
+  .formgrid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .top #today {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+}
+
+
+/* Lector de códigos con cámara para celular y tablet */
+.camera-overlay{position:fixed;inset:0;background:rgba(15,23,42,.78);z-index:100000;display:none;align-items:center;justify-content:center;padding:16px}
+.camera-overlay.open{display:flex}
+.camera-dialog{width:min(520px,100%);background:#fff;border-radius:16px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.camera-dialog h2{margin:0 0 8px;font-size:19px}
+.camera-dialog p{font-size:13px;color:#64748b;margin:0 0 12px}
+#cameraReader{width:100%;overflow:hidden;border-radius:10px}
+#cameraReader video{border-radius:10px}
+.camera-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+
+</style>
+</head>
+
+<body>
+
+<!-- =====================================================
+     PANTALLA DE INICIO DE SESIÓN
+     ===================================================== -->
+
+<div id="loginScreen"
+     class="login-screen">
+
+ <div class="login-box">
+
+  <div class="login-logo">
+   🔐
+  </div>
+
+  <h1>Sistema de Inventario</h1>
+
+  <p class="muted">
+   Inicia sesión para continuar
+  </p>
+
+
+  <label>
+   Usuario
+  </label>
+
+  <input
+   id="loginUser"
+   type="text"
+   placeholder="Usuario"
+   autocomplete="username">
+
+
+  <label>
+   Contraseña
+  </label>
+
+  <input
+   id="loginPassword"
+   type="password"
+   placeholder="Contraseña"
+   autocomplete="current-password"
+   onkeydown="
+    if(event.key==='Enter'){
+     login();
+    }
+   ">
+
+
+  <button
+   class="btn primary"
+   style="width:100%;margin-top:15px"
+   onclick="login()">
+
+   🔐 INGRESAR
+
+  </button>
+
+
+  <div
+   class="muted"
+   style="
+    margin-top:15px;
+    font-size:11px;
+    text-align:center">
+
+   Usuario inicial: ADMIN
+
+  </div>
+
+ </div>
+
+</div>
+
+<div id="app" class="app hidden">
+
+<aside class="side" id="side">
+
+ <div class="brand">
+  📦 Inventario y Ventas
+  <small>Versión web · primera fase</small>
+ </div>
+
+ <div class="nav">
+
+  <button class="active"
+          data-title="Dashboard"
+          data-sub="Resumen general del sistema"
+          onclick="nav('dashboard',this)">
+    🏠 Dashboard
+  </button>
+
+  <button
+          data-title="Productos"
+          data-sub="Catálogo de productos"
+          onclick="nav('productos',this)">
+    📦 Productos
+  </button>
+
+  <button
+          data-title="Entradas"
+          data-sub="Compras y actualización de existencias"
+          onclick="nav('entradas',this)">
+    📥 Entradas
+  </button>
+
+  <button
+          data-title="Ventas"
+          data-sub="Punto de venta"
+          onclick="nav('ventas',this)">
+    🛒 Ventas
+  </button>
+
+  <button
+          data-title="Salidas"
+          data-sub="Salidas de inventario"
+          onclick="nav('salidas',this)">
+    📤 Salidas
+  </button>
+
+  <button
+          data-title="Inventario"
+          data-sub="Existencias actuales"
+          onclick="nav('inventario',this)">
+    📊 Inventario
+  </button>
+
+  <button
+          data-title="Clientes"
+          data-sub="Clientes registrados"
+          onclick="nav('clientes',this)">
+    👥 Clientes
+  </button>
+
+  <button
+          data-title="Reportes"
+          data-sub="Ventas y movimientos"
+          onclick="nav('reportes',this)">
+    📑 Reportes
+  </button>
+
+<button
+        data-title="Configuración"
+        data-sub="Usuarios, seguridad y auditoría"
+        onclick="nav('configuracion',this)">
+  ⚙️ Configuración
+</button>
+
+<button
+        type="button"
+        class="btn-cerrar-sesion"
+        onclick="logout()">
+  🚪 Cerrar sesión
+</button>
+
+ </div>
+
+</aside>
+
+<main class="main">
+
+<header class="top">
+
+ <div style="display:flex;gap:9px;align-items:flex-start">
+
+  <button class="hamb" onclick="toggleMenu()">☰</button>
+
+  <div>
+   <h1 id="title">Dashboard</h1>
+   <p id="subtitle">Resumen general del sistema</p>
+  </div>
+
+ </div>
+
+ <span class="muted" id="today"></span>
+
+</header>
+
+
+<section id="dashboard" class="section active">
+
+ <div class="cards">
+
+  <div class="card">
+   <small>PRODUCTOS</small>
+   <strong id="kProducts">0</strong>
+  </div>
+
+  <div class="card">
+   <small>VENTAS</small>
+   <strong id="kSales">$0</strong>
+  </div>
+
+  <div class="card">
+   <small>COMPRAS</small>
+   <strong id="kBuys">$0</strong>
+  </div>
+
+  <div class="card">
+   <small>VALOR STOCK</small>
+   <strong id="kStock">$0</strong>
+  </div>
+
+  <div class="card">
+   <small>STOCK BAJO</small>
+   <strong id="kLow">0</strong>
+  </div>
+
+ </div>
+
+
+ <div class="grid2">
+
+  <div class="panel">
+   <h2>Ventas mensuales</h2>
+   <div id="salesChart"
+        style="height:210px;display:flex;align-items:stretch;gap:8px;padding-top:15px">
+   </div>
+  </div>
+
+  <div class="panel">
+   <h2>Alertas del sistema</h2>
+   <div id="alerts"></div>
+  </div>
+
+ </div>
+
+
+ <div class="panel" style="margin-top:14px">
+
+  <h2>Últimos movimientos</h2>
+
+  <div class="tablewrap">
+
+   <table class="table">
+
+    <thead>
+     <tr>
+      <th>Fecha</th>
+      <th>Tipo</th>
+      <th>Producto</th>
+      <th>Cantidad</th>
+      <th>Total</th>
+     </tr>
+    </thead>
+
+    <tbody id="moves"></tbody>
+
+   </table>
+
+  </div>
+
+ </div>
+
+</section>
+
+
+<section id="productos" class="section">
+
+ <div class="grid2">
+
+  <div class="panel">
+
+   <h2>Nuevo producto</h2>
+
+   <form id="productForm"
+         onsubmit="event.preventDefault();addProduct()">
+
+    <div class="formgrid">
+
+     <div class="field">
+      <label>Código / código de barras</label>
+      <input id="pCode">
+     </div>
+
+     <div class="field">
+      <label>Categoría</label>
+      <input id="pCat">
+     </div>
+
+     <div class="field">
+      <label>Producto</label>
+      <input id="pName">
+     </div>
+
+     <div class="field">
+      <label>Marca</label>
+      <input id="pBrand">
+     </div>
+
+     <div class="field">
+      <label>Modelo</label>
+      <input id="pModel">
+     </div>
+
+     <div class="field">
+      <label>Medida</label>
+      <input id="pMeasure" value="UNIDAD">
+     </div>
+
+     <div class="field">
+      <label>% Ganancia</label>
+      <input id="pGain" type="number" min="0">
+     </div>
+
+     <div class="field">
+      <label>Precio venta</label>
+      <input id="pSale" type="number" min="0">
+     </div>
+
+     <div class="field">
+      <label>IVA %</label>
+      <input id="pIva" type="number" min="0" value="0">
+     </div>
+
+     <div class="field">
+      <label>Stock mínimo</label>
+      <input id="pMin" type="number" min="0" value="0">
+     </div>
+
+     <div class="field" style="grid-column:1/-1">
+      <label>Observaciones</label>
+      <input id="pNotes">
+     </div>
+
+    </div>
+
+    <div class="actions" style="margin-top:12px">
+     <button class="btn primary">Guardar producto</button>
+    </div>
+
+   </form>
+
+  </div>
+
+
+  <div class="panel">
+
+   <h2>Productos registrados</h2>
+
+   <div class="toolbar">
+
+    <input id="prodSearch"
+           class="field search"
+           placeholder="Buscar código, producto, marca..."
+           oninput="renderProducts()">
+
+   </div>
+
+   <div class="tablewrap">
+
+    <table class="table">
+
+     <thead>
+
+      <tr>
+       <th>Código</th>
+       <th>Producto</th>
+       <th>Categoría</th>
+       <th>Marca</th>
+       <th>Medida</th>
+       <th>Venta</th>
+       <th>Ganancia</th>
+       <th>Estado</th>
+       <th></th>
+      </tr>
+
+     </thead>
+
+     <tbody id="productsRows"></tbody>
+
+    </table>
+
+   </div>
+
+  </div>
+
+ </div>
+
+</section>
+
+
+<section id="entradas" class="section">
+
+ <div class="panel">
+
+  <div class="toolbar">
+
+   <button class="btn"
+           onclick="showEntryHistory()">
+    📋 Entradas registradas
+   </button>
+
+   <button class="btn"
+           onclick="generateManualCode()">
+    🔢 Generar código manual
+   </button>
+
+  </div>
+
+
+  <div class="cards"
+       style="grid-template-columns:repeat(3,minmax(160px,1fr));margin-bottom:14px">
+
+   <div class="card">
+    <small>PRODUCTOS EN LISTA</small>
+    <strong id="entryCount">0</strong>
+   </div>
+
+   <div class="card">
+    <small>UNIDADES INVENTARIO</small>
+    <strong id="entryUnits">0</strong>
+   </div>
+
+   <div class="card">
+    <small>TOTAL COMPRAS</small>
+    <strong id="entryGrandTotal">$0</strong>
+   </div>
+
+  </div>
+
+ </div>
+
+
+ <div class="grid2"
+      style="margin-top:14px;grid-template-columns:1.05fr 1.95fr">
+
+
+  <div class="panel">
+
+   <h2>Gestión de entrada</h2>
+
+   <div class="toolbar">
+
+    <input id="eSearch"
+           class="search"
+           placeholder="Escanee / escriba el código y presione ENTER"
+           onkeydown="if(event.key==='Enter'){event.preventDefault();buscarEntradaPorCodigo()}">
+
+    <button class="btn primary"
+            onclick="buscarEntradaPorCodigo()">
+     🔎 Buscar
+    </button>
+
+    <button class="btn primary" type="button"
+            onclick="openCameraScanner('entrada')">
+     📷 Cámara
+    </button>
+
+   </div>
+
+   <div id="eStatus"
+        class="productbox">
+    Escanee un código para comenzar.
+   </div>
+
+
+   <div class="formgrid"
+        style="margin-top:12px;grid-template-columns:1fr 1fr">
+
+
+    <div class="field">
+     <label>Fecha</label>
+     <input id="eFecha" readonly>
+    </div>
+
+
+    <div class="field">
+     <label>Código</label>
+     <input id="eCode" readonly>
+    </div>
+
+
+    <div class="field">
+     <label>Categoría</label>
+     <input id="eCat" list="catList" placeholder="Categoría">
+    </div>
+
+
+    <div class="field">
+     <label>Producto</label>
+     <input id="eName" list="prodList" placeholder="Producto">
+    </div>
+
+
+    <div class="field">
+     <label>Marca</label>
+     <input id="eBrand" list="brandList" placeholder="Marca">
+    </div>
+
+    <div class="field">
+     <label>Modelo</label>
+     <input id="eModel" placeholder="Modelo">
+    </div>
+
+    <div class="field">
+
+     <label>Medida de compra</label>
+
+     <select id="eMeasure"
+             onchange="toggleContentField()">
+
+      <option value="">Seleccione...</option>
+      <option>UNIDAD</option>
+      <option>KG</option>
+      <option>GRAMO</option>
+      <option>LIBRA</option>
+      <option>LITRO</option>
+      <option>MILILITRO</option>
+      <option>METRO</option>
+      <option>CENTIMETRO</option>
+      <option>CAJA</option>
+      <option>PAQUETE</option>
+      <option>BOLSA</option>
+      <option>ROLLO</option>
+      <option>GALON</option>
+      <option>EMPAQUE</option>
+
+     </select>
+
+    </div>
+
+
+    <div class="field">
+     <label>Cantidad</label>
+     <input id="eQty"
+            type="number"
+            min="0"
+            step="any"
+            value="1">
+    </div>
+
+
+    <div class="field">
+     <label>Precio de compra</label>
+     <input id="eBuy"
+            type="number"
+            min="0"
+            step="any"
+            oninput="calcularEntradaVenta()">
+    </div>
+
+
+    <div class="field">
+     <label>% Ganancia</label>
+     <input id="eGain"
+            type="number"
+            min="0"
+            step="any"
+            oninput="calcularEntradaVenta()">
+    </div>
+
+
+    <div class="field">
+     <label>Precio de venta unidad</label>
+     <input id="eSale"
+            type="number"
+            min="0"
+            step="any">
+    </div>
+
+
+    <div class="field"
+         id="contentWrap"
+         style="display:none">
+
+     <label>Contenido por empaque</label>
+
+     <input id="eContent"
+            type="number"
+            min="1"
+            step="1"
+            value="1">
+
+    </div>
+
+
+    <div class="field"
+         style="grid-column:1/-1">
+
+     <label>Observaciones</label>
+     <input id="eNotes">
+
+    </div>
+
+   </div>
+
+
+   <datalist id="catList"></datalist>
+   <datalist id="prodList"></datalist>
+   <datalist id="brandList"></datalist>
+
+
+   <div class="actions"
+        style="margin-top:13px">
+
+    <button class="btn primary"
+            onclick="agregarEntradaLista()">
+     ➕ ENTRADA
+    </button>
+
+    <button class="btn"
+            onclick="limpiarEntradaActual()">
+     🧹 Agregar producto
+    </button>
+
+    <button class="btn danger"
+            onclick="eliminarEntradaSeleccionada()">
+     🗑 Eliminar
+    </button>
+
+   </div>
+
+  </div>
+
+
+  <div class="panel">
+
+   <h2>Productos a registrar</h2>
+
+   <div class="toolbar">
+
+    <input id="entrySearchList"
+           class="search"
+           placeholder="Buscar por código o producto..."
+           oninput="buscarEnListaEntrada()">
+
+   </div>
+
+
+   <div class="tablewrap"
+        style="max-height:530px">
+
+    <table class="table">
+
+     <thead>
+
+      <tr>
+       <th>Código</th>
+       <th>Producto</th>
+       <th>Marca</th>
+       <th>Modelo</th>
+       <th>Cantidad</th>
+       <th>Medida</th>
+       <th>Contenido</th>
+       <th>Unidades</th>
+       <th>P. Compra</th>
+       <th>P. Venta</th>
+       <th>Total Compra</th>
+       <th>Categoría</th>
+       <th>% Gan.</th>
+       <th>Observaciones</th>
+      </tr>
+
+     </thead>
+
+     <tbody id="entryRows"></tbody>
+
+    </table>
+
+   </div>
+
+
+   <div class="actions"
+        style="margin-top:12px;justify-content:flex-end">
+
+    <button class="btn primary"
+            onclick="moverEntradasAInventario()">
+     ✅ MOVER A INVENTARIO
+    </button>
+
+   </div>
+
+  </div>
+
+ </div>
+
+
+ <div id="entryHistory"
+      class="panel"
+      style="display:none;margin-top:14px">
+
+  <h2>Historial de entradas</h2>
+
+  <div class="tablewrap">
+
+   <table class="table">
+
+    <thead>
+
+     <tr>
+      <th>ID</th>
+      <th>Fecha</th>
+      <th>Código</th>
+      <th>Producto</th>
+      <th>Marca</th>
+      <th>P. Compra</th>
+      <th>Cantidad</th>
+      <th>Medida</th>
+      <th>Total</th>
+      <th>Observaciones</th>
+     </tr>
+
+    </thead>
+
+    <tbody id="entryHistoryRows"></tbody>
+
+   </table>
+
+  </div>
+
+ </div>
+
+</section>
+
+
+<section id="ventas" class="section">
+
+ <div class="panel">
+
+  <div class="sale-head">
+
+   <div class="field">
+    <label>Fecha</label>
+    <input id="sFecha" readonly>
+   </div>
+
+   <div class="field">
+    <label>Hora</label>
+    <input id="sHora" readonly>
+   </div>
+
+  </div>
+
+
+  <div class="sale-product">
+
+   <div>
+
+    <h2>Buscar / escanear producto</h2>
+
+    <div class="toolbar">
+
+     <input id="sSearch"
+            class="search"
+            placeholder="ESCANEAR PRODUCTO DE VENTA..."
+            onkeydown="if(event.key==='Enter'){event.preventDefault();scanOrAddSale()}">
+
+     <button class="btn primary"
+             onclick="scanOrAddSale()">
+      🔎 Escanear / agregar
+     </button>
+
+     <button class="btn primary" type="button"
+             onclick="openCameraScanner('venta')">
+      📷 Cámara
+     </button>
+
+    </div>
+
+
+    <div class="toolbar">
+
+     <input id="sConsult"
+            class="search"
+            placeholder="CONSULTAR PRODUCTO..."
+            onkeydown="if(event.key==='Enter'){event.preventDefault();consultSaleProduct()}">
+
+     <button class="btn"
+             onclick="consultSaleProduct()">
+      Consultar
+     </button>
+
+    </div>
+
+
+    <div class="productbox"
+         id="saleProduct">
+
+     Escanee un código para agregar una unidad al carrito,
+     o consulte un producto por código/nombre.
+
+    </div>
+
+
+    <div class="sale-selected">
+
+     <div class="card">
+      <small>PRODUCTO</small>
+      <strong id="sInfoName">—</strong>
+     </div>
+
+     <div class="card">
+      <small>CÓDIGO</small>
+      <strong id="sInfoCode">—</strong>
+     </div>
+
+     <div class="card">
+      <small>PRECIO VENTA</small>
+      <strong id="sInfoPrice">$0</strong>
+     </div>
+
+     <div class="card">
+      <small>STOCK DISPONIBLE</small>
+      <strong id="sInfoStock">0</strong>
+     </div>
+
+    </div>
+
+
+    <div class="sale-selected">
+
+     <div class="card">
+      <small>MARCA</small>
+      <strong id="sInfoBrand">—</strong>
+     </div>
+
+     <div class="card">
+      <small>CATEGORÍA</small>
+      <strong id="sInfoCat">—</strong>
+     </div>
+
+     <div class="card">
+      <small>MODELO</small>
+      <strong id="sInfoModel">—</strong>
+     </div>
+
+     <div class="card">
+      <small>MEDIDA</small>
+      <strong id="sInfoMeasure">—</strong>
+     </div>
+
+    </div>
+
+
+    <div class="panel"
+         style="margin-top:12px;padding:12px">
+
+     <div class="field">
+
+      <label>Cantidad para agregar / editar</label>
+
+      <div class="qtybox">
+
+       <button class="btn"
+               onclick="saleQtyMinus()">
+        −
+       </button>
+
+       <input id="sQty"
+              type="number"
+              min="1"
+              step="1"
+              value="1">
+
+       <button class="btn"
+               onclick="saleQtyPlus()">
+        +
+       </button>
+
+       <button class="btn primary"
+               onclick="addSaleLine()">
+        Agregar al carrito
+       </button>
+
+      </div>
+
+     </div>
+
+    </div>
+
+   </div>
+
+
+   <div class="panel">
+
+    <h2>Cliente y pago</h2>
+
+    <div class="formgrid"
+         style="grid-template-columns:1fr 1fr">
+
+     <div class="field">
+      <label>Cliente</label>
+      <select id="client"></select>
+     </div>
+
+     <div class="field">
+      <label>Vendedor</label>
+      <select id="seller"></select>
+     </div>
+
+     <div class="field">
+      <label>Forma de pago</label>
+
+      <select id="payment">
+       <option value="">Seleccionar</option>
+                  <option value="EFECTIVO">EFECTIVO</option>
+                  <option value="TRANSFERENCIA">TRANSFERENCIA</option>
+                  <option value="MIXTO">MIXTO</option>
+       <option>TARJETA</option>
+       <option>NEQUI</option>
+       <option>DAVIPLATA</option>
+       <option>OTRO</option>
+      </select>
+
+     </div>
+
+     <div class="field">
+      <label>Descuento general %</label>
+
+      <input id="discount"
+             type="number"
+             min="0"
+             max="100"
+             step="0.01"
+             value="0">
+
+     </div>
+
+     <div class="field"
+     id="receivedNormalWrap"
+     style="grid-column:1/-1">
+
+ <label>Dinero recibido</label>
+
+ <input id="received"
+        type="text"
+        value="0"
+        inputmode="numeric"
+        onblur="formatReceived()">
+
+</div>
+
+
+<div class="field"
+     id="mixedPaymentWrap"
+     style="grid-column:1/-1;display:none">
+
+ <div style="
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:12px;
+      background:#f8fafc">
+
+  <div style="
+       font-weight:700;
+       margin-bottom:10px">
+   💵 Pago mixto
+  </div>
+
+
+  <div class="formgrid"
+       style="grid-template-columns:1fr 1fr">
+
+
+   <div class="field">
+
+    <label>Efectivo</label>
+
+    <input id="cashReceived"
+           type="text"
+           value="0"
+           inputmode="numeric">
+
+   </div>
+
+
+   <div class="field">
+
+    <label>Transferencia</label>
+
+    <input id="transferReceived"
+           type="text"
+           value="0"
+           inputmode="numeric">
+
+   </div>
+
+  </div>
+
+
+  <div class="line">
+   <span>Total recibido</span>
+   <b id="mixedReceived">$0</b>
+  </div>
+
+
+  <div class="line">
+   <span>Faltante</span>
+   <b id="mixedMissing">$0</b>
+  </div>
+
+ </div>
+
+</div>
+
+    </div>
+
+
+    <div class="sale-totals"
+         style="margin-top:12px">
+
+     <div class="line">
+      <span>Subtotal</span>
+      <b id="sumSub">$0</b>
+     </div>
+
+     <div class="line">
+      <span>Descuento</span>
+      <b id="sumDisc">$0</b>
+     </div>
+
+     <div class="line">
+      <span>IVA</span>
+      <b id="sumIva">$0</b>
+     </div>
+
+     <div class="line grand">
+      <span>Total a pagar</span>
+      <b id="sumTotal">$0</b>
+     </div>
+
+     <div class="line">
+      <span>Cambio</span>
+      <b id="change">$0</b>
+     </div>
+
+    </div>
+
+
+    <div class="sale-buttons"
+         style="margin-top:12px">
+
+     <button class="btn success"
+             onclick="finishSaleExact()">
+      ✅ Generar venta
+     </button>
+
+     <button class="btn"
+             onclick="printTicket()">
+      🖨 Imprimir ticket
+     </button>
+
+     <button class="btn danger"
+             onclick="cancelSale()">
+      ✖ Cancelar venta
+     </button>
+
+     <button class="btn"
+             onclick="clearSaleOnly()">
+      🧹 Limpiar
+     </button>
+
+    </div>
+
+   </div>
+
+  </div>
+
+ </div>
+
+
+ <div class="panel"
+      style="margin-top:14px">
+
+  <h2>Productos a registrar en la venta</h2>
+
+  <div class="toolbar">
+
+   <input id="saleCartSearch"
+          class="search"
+          placeholder="Buscar en el carrito..."
+          oninput="renderCartExact()">
+
+   <button class="btn danger"
+           onclick="removeSelectedSaleLine()">
+    Eliminar seleccionado
+   </button>
+
+  </div>
+
+
+  <div class="tablewrap">
+
+   <table class="table">
+
+    <thead>
+
+     <tr>
+      <th>Código</th>
+      <th>Producto</th>
+      <th>Marca</th>
+      <th>Cantidad</th>
+      <th>Medida</th>
+      <th>Precio</th>
+      <th>Descuento</th>
+      <th>IVA</th>
+      <th>Total</th>
+     </tr>
+
+    </thead>
+
+    <tbody id="cartRows"></tbody>
+
+   </table>
+
+  </div>
+
+
+  <div class="muted"
+       style="font-size:11px;margin-top:8px">
+
+   Haz clic sobre una línea para cargarla y cambiar su cantidad.
+
+  </div>
+
+ </div>
+
+
+ <div class="ticket-area"
+      id="ticketPrint"></div>
+
+</section>
+
+
+<section id="salidas" class="section">
+
+ <div class="pos">
+
+  <div>
+
+   <div class="panel">
+
+    <h2>Salida de inventario</h2>
+
+    <p class="muted"
+       style="font-size:12px;margin-top:-5px">
+
+     Este módulo es independiente de Ventas.
+     Se utiliza para retirar mercancía por daño,
+     pérdida, consumo interno, ajuste, devolución u otro motivo.
+
+    </p>
+
+
+    <div class="toolbar">
+
+     <input id="outSearch"
+            class="search"
+            placeholder="Escanear código o buscar producto"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();searchOutProduct()}">
+
+     <button class="btn primary"
+             onclick="searchOutProduct()">
+      🔎 Buscar
+     </button>
+
+    </div>
+
+
+    <div class="productbox"
+         id="outProduct">
+
+     Busca un producto para consultar su existencia.
+
+    </div>
+
+
+    <div class="formgrid"
+         style="margin-top:12px">
+
+     <div class="field">
+      <label>Código</label>
+      <input id="outCode" readonly>
+     </div>
+
+     <div class="field">
+      <label>Producto</label>
+      <input id="outName" readonly>
+     </div>
+
+     <div class="field">
+      <label>Marca</label>
+      <input id="outBrand" readonly>
+     </div>
+
+     <div class="field">
+      <label>Stock disponible</label>
+      <input id="outStock" readonly>
+     </div>
+
+     <div class="field">
+      <label>Cantidad a retirar</label>
+      <input id="outQty"
+             type="number"
+             min="1"
+             value="1">
+     </div>
+
+     <div class="field">
+
+      <label>Tipo de salida</label>
+
+      <select id="outReason">
+       <option>CONSUMO INTERNO</option>
+       <option>DAÑO</option>
+       <option>PÉRDIDA</option>
+       <option>DEVOLUCIÓN</option>
+       <option>AJUSTE DE INVENTARIO</option>
+       <option>MUESTRA</option>
+       <option>VENCIMIENTO</option>
+       <option>OTRO</option>
+      </select>
+
+     </div>
+
+     <div class="field">
+      <label>Responsable</label>
+      <input id="outResponsible"
+             placeholder="Persona responsable">
+     </div>
+
+     <div class="field">
+      <label>Observación</label>
+      <input id="outNote"
+             placeholder="Motivo / detalle">
+     </div>
+
+    </div>
+
+
+    <div class="actions"
+         style="margin-top:12px">
+
+     <button class="btn primary"
+             onclick="addOutLine()">
+      Agregar salida
+     </button>
+
+     <button class="btn danger"
+             onclick="clearOutForm()">
+      Limpiar
+     </button>
+
+    </div>
+
+   </div>
+
+
+   <div class="panel"
+        style="margin-top:14px">
+
+    <h2>Salidas pendientes</h2>
+
+    <div class="tablewrap">
+
+     <table class="table">
+
+      <thead>
+
+       <tr>
+        <th>Código</th>
+        <th>Producto</th>
+        <th>Cantidad</th>
+        <th>Motivo</th>
+        <th>Responsable</th>
+        <th>Observación</th>
+        <th></th>
+       </tr>
+
+      </thead>
+
+      <tbody id="outRows"></tbody>
+
+     </table>
+
+    </div>
+
+   </div>
+
+  </div>
+
+
+  <div class="panel summary">
+
+   <h2>Confirmar salidas</h2>
+
+   <div class="line">
+    <span>Productos</span>
+    <b id="outCount">0</b>
+   </div>
+
+   <div class="line">
+    <span>Unidades a retirar</span>
+    <b id="outQtyTotal">0</b>
+   </div>
+
+   <p class="muted"
+      style="font-size:12px">
+
+    Al confirmar, la cantidad se descontará del inventario
+    y el movimiento quedará registrado como salida,
+    separado de las ventas.
+
+   </p>
+
+   <button class="btn primary"
+           style="width:100%;margin-top:10px"
+           onclick="confirmOut()">
+    Registrar salida
+   </button>
+
+  </div>
+
+ </div>
+
+
+ <div class="panel"
+      style="margin-top:14px">
+
+  <h2>Historial de salidas</h2>
+
+  <div class="tablewrap">
+
+   <table class="table">
+
+    <thead>
+
+ <tr>
+  <th>ID</th>
+  <th>Fecha</th>
+  <th>Producto</th>
+  <th>Cantidad</th>
+  <th>Motivo</th>
+  <th>Responsable</th>
+  <th>Observación</th>
+  <th>REALIZADO POR</th>
+  <th>AUTORIZADO POR</th>
+ </tr>
+
+</thead>
+
+    <tbody id="outHistory"></tbody>
+
+   </table>
+
+  </div>
+
+ </div>
+
+</section>
+
+
+<section id="inventario" class="section">
+
+ <div class="panel">
+
+  <h2>Inventario actual</h2>
+
+  <div class="tablewrap">
+
+   <table class="table">
+
+    <thead>
+
+     <tr>
+      <th>Código</th>
+      <th>Producto</th>
+      <th>Marca</th>
+      <th>Modelo</th>
+      <th>Categoría</th>
+      <th>Cantidad</th>
+      <th>Costo</th>
+      <th>Precio venta</th>
+      <th>Estado</th>
+     </tr>
+
+    </thead>
+
+    <tbody id="inventoryRows"></tbody>
+
+   </table>
+
+  </div>
+
+ </div>
+
+</section>
+
+
+<section id="clientes" class="section">
+
+ <div class="grid2">
+
+  <!-- =====================================================
+       FORMULARIO DE CLIENTE
+       ===================================================== -->
+
+  <div class="panel">
+
+   <h2 id="clientFormTitle">Nuevo cliente</h2>
+
+   <form id="clientForm"
+         onsubmit="event.preventDefault();saveClient()">
+
+    <div class="formgrid">
+
+     <div class="field">
+      <label>Tipo de documento</label>
+
+      <select id="cDocType">
+       <option value="CC">CÉDULA DE CIUDADANÍA</option>
+       <option value="NIT">NIT</option>
+       <option value="CE">CÉDULA DE EXTRANJERÍA</option>
+       <option value="PASAPORTE">PASAPORTE</option>
+       <option value="OTRO">OTRO</option>
+      </select>
+     </div>
+
+
+     <div class="field">
+      <label>Número de documento</label>
+
+      <input id="cDoc"
+             type="text"
+             placeholder="Número de documento">
+     </div>
+
+
+     <div class="field">
+      <label>Nombre / Razón social</label>
+
+      <input id="cName"
+             type="text"
+             placeholder="Nombre completo o empresa">
+     </div>
+
+
+     <div class="field">
+      <label>Teléfono</label>
+
+      <input id="cPhone"
+             type="text"
+             placeholder="Teléfono">
+     </div>
+
+
+     <div class="field">
+      <label>Correo electrónico</label>
+
+      <input id="cEmail"
+             type="email"
+             placeholder="correo@ejemplo.com">
+     </div>
+
+
+     <div class="field">
+      <label>Ciudad</label>
+
+      <input id="cCity"
+             type="text"
+             placeholder="Ciudad">
+     </div>
+
+
+     <div class="field"
+          style="grid-column:1/-1">
+
+      <label>Dirección</label>
+
+      <input id="cAddress"
+             type="text"
+             placeholder="Dirección">
+     </div>
+
+
+     <div class="field">
+      <label>Estado</label>
+
+      <select id="cStatus">
+       <option value="ACTIVO">ACTIVO</option>
+       <option value="INACTIVO">INACTIVO</option>
+      </select>
+     </div>
+
+    </div>
+
+
+    <div class="actions"
+         style="margin-top:12px">
+
+     <button class="btn primary"
+             type="submit">
+      💾 Guardar cliente
+     </button>
+
+     <button class="btn"
+             type="button"
+             onclick="clearClientForm()">
+      🧹 Limpiar
+     </button>
+
+    </div>
+
+   </form>
+
+  </div>
+
+
+  <!-- =====================================================
+       LISTADO DE CLIENTES
+       ===================================================== -->
+
+  <div class="panel">
+
+   <h2>Clientes registrados</h2>
+
+   <div class="toolbar">
+
+    <input id="clientSearch"
+           class="search"
+           placeholder="Buscar documento, nombre, teléfono..."
+           oninput="renderClients()">
+
+   </div>
+
+
+   <div class="tablewrap">
+
+    <table class="table">
+
+     <thead>
+
+      <tr>
+       <th>ID</th>
+       <th>Documento</th>
+       <th>Cliente</th>
+       <th>Teléfono</th>
+       <th>Correo</th>
+       <th>Ciudad</th>
+       <th>Estado</th>
+       <th></th>
+      </tr>
+
+     </thead>
+
+     <tbody id="clientsRows"></tbody>
+
+    </table>
+
+   </div>
+
+  </div>
+
+ </div>
+
+</section>
+
+<section id="reportes" class="section">
+
+ <div class="panel">
+
+  <h2>Reporte de ventas</h2>
+
+  <div class="tablewrap">
+
+   <table class="table">
+
+    <thead>
+
+   <tr>
+          <th>ID</th>
+          <th>Fecha</th>
+          <th>Producto</th>
+          <th>Cantidad</th>
+         <th>Total</th>
+         <th>Pago</th>
+         <th>Vendedor</th>
+         <th>Cliente</th>
+         <th>Usuario</th>
+    </tr>
+
+    </thead>
+
+    <tbody id="reportRows"></tbody>
+
+   </table>
+
+  </div>
+
+ </div>
+
+</section>
+
+<section id="configuracion" class="section">
+
+ <div class="grid2">
+
+  <!-- ==========================================
+       GESTIÓN DE USUARIOS
+       ========================================== -->
+
+  <div class="panel">
+
+   <h2>👤 Gestión de usuarios</h2>
+
+   <p class="muted" style="font-size:12px">
+    Desde aquí el administrador puede crear y administrar
+    los usuarios que tendrán acceso al sistema.
+   </p>
+
+   <form id="userForm"
+         onsubmit="event.preventDefault();saveUser()">
+
+    <div class="formgrid">
+
+     <div class="field">
+      <label>Usuario</label>
+      <input id="uUsername"
+             type="text"
+             placeholder="Ej: CARLOS">
+     </div>
+
+     <div class="field">
+      <label>Nombre completo</label>
+      <input id="uName"
+             type="text"
+             placeholder="Nombre del trabajador">
+     </div>
+
+     <div class="field">
+      <label>Contraseña</label>
+      <input id="uPassword"
+             type="password"
+             placeholder="Contraseña">
+     </div>
+
+     <div class="field">
+      <label>Rol</label>
+
+      <select id="uRole">
+       <option value="TRABAJADOR">TRABAJADOR</option>
+       <option value="ADMINISTRADOR">ADMINISTRADOR</option>
+      </select>
+
+     </div>
+
+     <div class="field">
+
+      <label>Estado</label>
+
+      <select id="uStatus">
+       <option value="ACTIVO">ACTIVO</option>
+       <option value="INACTIVO">INACTIVO</option>
+      </select>
+
+     </div>
+
+    </div>
+
+    <div class="actions" style="margin-top:12px">
+
+     <button class="btn primary" type="submit">
+      💾 Guardar usuario
+     </button>
+
+     <button class="btn"
+             type="button"
+             onclick="clearUserForm()">
+      🧹 Limpiar
+     </button>
+
+    </div>
+
+   </form>
+
+  </div>
+
+
+  <!-- ==========================================
+       USUARIO ACTUAL
+       ========================================== -->
+
+  <div class="panel">
+
+   <h2>🔐 Sesión actual</h2>
+
+   <div class="line">
+    <span>Usuario</span>
+    <b id="currentUserName">—</b>
+   </div>
+
+   <div class="line">
+    <span>Rol</span>
+    <b id="currentUserRole">—</b>
+   </div>
+
+   <div style="margin-top:15px">
+
+    <button class="btn danger"
+            style="width:100%"
+            onclick="logout()">
+
+     🚪 Cerrar sesión
+
+    </button>
+
+   </div>
+
+  </div>
+
+ </div>
+
+
+ <!-- ==========================================
+      LISTADO DE USUARIOS
+      ========================================== -->
+
+ <div class="panel" style="margin-top:14px">
+
+  <h2>👥 Usuarios registrados</h2>
+
+  <div class="tablewrap">
+
+   <table class="table">
+
+    <thead>
+
+     <tr>
+      <th>ID</th>
+      <th>Usuario</th>
+      <th>Nombre</th>
+      <th>Rol</th>
+      <th>Estado</th>
+      <th></th>
+     </tr>
+
+    </thead>
+
+    <tbody id="usersRows"></tbody>
+
+   </table>
+
+  </div>
+
+ </div>
+
+
+ <!-- ==========================================
+      AUDITORÍA
+      ========================================== -->
+
+ <div class="panel" style="margin-top:14px">
+
+  <h2>📋 Auditoría del sistema</h2>
+
+  <p class="muted" style="font-size:12px">
+   Aquí quedará registrado quién realizó cada operación
+   importante dentro del sistema.
+  </p>
+
+  <div class="tablewrap">
+
+   <table class="table">
+
+    <thead>
+
+     <tr>
+      <th>Fecha</th>
+      <th>Hora</th>
+      <th>Usuario</th>
+      <th>Rol</th>
+      <th>Acción</th>
+      <th>Detalle</th>
+     </tr>
+
+    </thead>
+
+    <tbody id="auditRows"></tbody>
+
+   </table>
+
+  </div>
+
+ </div>
+
+</section>
+
+<footer class="muted"
+        style="font-size:11px;text-align:center;padding:18px">
+
+ Sistema convertido desde Excel/VBA · datos de prueba persistidos en este navegador
+
+</footer>
+
+</main>
+
+</div>
+
+<!-- =====================================================
+     MODAL DE AUTORIZACIÓN DE ADMINISTRADOR
+     ===================================================== -->
+
+<div id="adminAuthModal"
+     class="modal-overlay"
+     style="display:none;">
+
+ <div class="modal-box">
+
+  <h2>🔐 Autorización de administrador</h2>
+
+  <p class="muted">
+   Esta salida corresponde a <b>DAÑO</b> o <b>PÉRDIDA</b>.
+   <br>
+   Se requiere autorización de un administrador para continuar.
+  </p>
+
+  <div class="field"
+       style="margin-top:15px;">
+
+   <label>Usuario administrador</label>
+
+   <input id="adminAuthUser"
+          type="text"
+          autocomplete="off"
+          placeholder="Ingrese el usuario">
+
+  </div>
+
+  <div class="field"
+       style="margin-top:12px;">
+
+   <label>Contraseña</label>
+
+   <input id="adminAuthPassword"
+          type="password"
+          autocomplete="off"
+          placeholder="Ingrese la contraseña"
+          onkeydown="if(event.key==='Enter'){confirmarAutorizacionAdminSalida();}">
+
+  </div>
+
+  <div class="actions"
+       style="margin-top:18px;">
+
+   <button class="btn primary"
+           type="button"
+           onclick="confirmarAutorizacionAdminSalida()">
+
+    🔓 Autorizar salida
+
+   </button>
+
+   <button class="btn danger"
+           type="button"
+           onclick="cancelarAutorizacionAdminSalida()">
+
+    ✖ Cancelar
+
+   </button>
+
+  </div>
+
+ </div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<div id="cameraScannerModal" class="camera-overlay" role="dialog" aria-modal="true" aria-label="Escáner de códigos">
+ <div class="camera-dialog">
+  <h2>📷 Escanear código de barras</h2>
+  <p>Permite el acceso a la cámara y enfoca el código dentro del recuadro.</p>
+  <div id="cameraReader"></div>
+  <div id="cameraScanStatus" class="productbox">Preparando cámara…</div>
+  <div class="camera-actions">
+   <button class="btn" type="button" onclick="closeCameraScanner()">Cancelar</button>
+  </div>
+ </div>
+</div>
+
+
+
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script>
+
+const KEY="inventario_web_v2";
+
+const initial={
+
+ products:[
+  {
+   code:"101",
+   category:"FRENOS",
+   name:"PASTILLA DELANTERA",
+   brand:"AKT NKD/TT/CR4",
+   model:"",
+   measure:"UNIDAD",
+   gain:25,
+   sale:12500,
+   iva:0,
+   min:0,
+   notes:"PRUEBA 1",
+   status:"ACTIVO"
+  },
+
+  {
+   code:"7707299139475",
+   category:"ASEO",
+   name:"CERAFLEX",
+   brand:"MARLIOU",
+   model:"LIZO",
+   measure:"UNIDAD",
+   gain:15,
+   sale:10552.94,
+   iva:0,
+   min:0,
+   notes:"PRUEBA 3",
+   status:"ACTIVO"
+  }
+ ],
+
+ inventory:[
+  {
+   code:"101",
+   name:"PASTILLA DELANTERA",
+   brand:"AKT NKD/TT/CR4",
+   model:"",
+   category:"FRENOS",
+   qty:15,
+   measure:"UNIDAD",
+   cost:10000,
+   sale:12500,
+   iva:0,
+   lastEntry:"2026-09-29",
+   min:0,
+   status:"ACTIVO"
+  },
+
+  {
+   code:"7707299139475",
+   name:"CERAFLEX",
+   brand:"MARLIOU",
+   model:"LIZO",
+   category:"CABELLO",
+   qty:80,
+   measure:"UNIDAD",
+   cost:9176.47,
+   sale:10552.94,
+   iva:0,
+   lastEntry:"2026-09-29",
+   min:0,
+   status:"DISPONIBLE"
+  }
+ ],
+
+ entries:[
+  {
+   id:"1",
+   date:"2026-09-29",
+   code:"101",
+   name:"PASTILLA DELANTERA",
+   brand:"AKT NKD/TT/CR4",
+   buy:10000,
+   qty:15,
+   measure:"UNIDAD",
+   total:150000,
+   notes:"PRUEBA 1"
+  },
+
+  {
+   id:"2",
+   date:"2026-09-29",
+   code:"7707299139475",
+   name:"CERAFLEX",
+   brand:"MARLIOU",
+   buy:9000,
+   qty:10,
+   measure:"UNIDAD",
+   total:90000,
+   notes:"PRUEBA 2"
+  },
+
+  {
+   id:"3",
+   date:"2026-09-29",
+   code:"7707299139475",
+   name:"CERAFLEX",
+   brand:"MARLIOU",
+   buy:9000,
+   qty:50,
+   measure:"UNIDAD",
+   total:450000,
+   notes:"PRUEBA 3"
+  },
+
+  {
+   id:"4",
+   date:"2026-09-29",
+   code:"7707299139475",
+   name:"CERAFLEX",
+   brand:"MARLIOU",
+   buy:10000,
+   qty:15,
+   measure:"UNIDAD",
+   total:150000,
+   notes:"PRUEBA 3"
+  }
+ ],
+
+ salesLines:[
+  {
+   id:"1",
+   code:"7707299139475",
+   name:"CERAFLEX",
+   brand:"MARLIOU",
+   qty:3,
+   measure:"UNIDAD",
+   price:10552,
+   discount:1582.8,
+   iva:0,
+   total:30073.2,
+   client:"",
+   payment:"EFECTIVO",
+   seller:"EDWIN SARMIENTO",
+   received:50000,
+   change:19927,
+   date:"2026-09-30",
+   time:"14:14:00"
+  },
+
+  {
+   id:"2",
+   code:"7707299139475",
+   name:"CERAFLEX",
+   brand:"MARLIOU",
+   qty:2,
+   measure:"UNIDAD",
+   price:10552,
+   discount:0,
+   iva:0,
+   total:21104,
+   client:"",
+   payment:"EFECTIVO",
+   seller:"EDWIN SARMIENTO",
+   received:25000,
+   change:3896,
+   date:"2026-09-30",
+   time:"14:16:45"
+  }
+ ],
+
+ clients:[],
+
+ sellers:[
+  {
+   id:"1",
+   name:"EDWIN SARMIENTO",
+   status:"ACTIVO"
+  }
+ ],
+
+ users:[
+  {
+   id:"1",
+   username:"ADMIN",
+   password:"1234",
+   name:"ADMINISTRADOR",
+   role:"ADMINISTRADOR",
+   status:"ACTIVO"
+  }
+ ],
+
+ audit:[]
+
+};
+
+let db=load();
+let cart=[];
+let entryCart=[];
+let selectedSale=null;
+let currentUser=null;
+
+
+function load(){
+
+ try{
+
+  return JSON.parse(localStorage.getItem(KEY))||initial;
+
+ }catch(e){
+
+  return initial;
+
+ }
+
+}
+
+
+function save(){
+
+ localStorage.setItem(KEY,JSON.stringify(db));
+ refreshAll();
+
+}
+
+
+function money(n){
+
+ return new Intl.NumberFormat(
+  "es-CO",
+  {
+   style:"currency",
+   currency:"COP",
+   maximumFractionDigits:0
+  }
+ ).format(Number(n)||0);
+
+}
+
+
+function num(v){
+
+ let s=String(v??"")
+  .replace(/\$/g,"")
+  .replace(/\s/g,"")
+  .replace(/\./g,"")
+  .replace(",",".");  
+
+ return Number(s)||0;
+
+}
+
+
+function today(){
+
+ return new Date().toISOString().slice(0,10);
+
+}
+
+
+function nextId(arr){
+
+ return String(
+  Math.max(
+   0,
+   ...arr.map(x=>Number(x.id)||0)
+  )+1
+ );
+
+}
+
+
+function toast(msg){
+
+ let t=document.getElementById("toast");
+
+ t.textContent=msg;
+
+ t.classList.add("show");
+
+ setTimeout(
+  ()=>t.classList.remove("show"),
+  2200
+ );
+
+}
+/* =========================================================
+   SEGURIDAD Y USUARIOS
+   ========================================================= */
+
+function ensureSecurityStorage(){
+
+ if(!Array.isArray(db.users))
+  db.users=[];
+
+ if(!Array.isArray(db.audit))
+  db.audit=[];
+
+
+ /*
+  * Si el sistema es una versión anterior
+  * y todavía no tiene administrador,
+  * creamos el administrador inicial.
+  */
+
+ if(db.users.length===0){
+
+  db.users.push({
+
+   id:"1",
+   username:"ADMIN",
+   password:"1234",
+   name:"ADMINISTRADOR",
+   role:"ADMINISTRADOR",
+   status:"ACTIVO"
+
+  });
+
+  saveWithoutRefresh();
+
+ }
+
+}
+
+
+/* =========================================================
+   GUARDAR SIN REFRESCAR TODO
+   ========================================================= */
+
+function saveWithoutRefresh(){
+
+ localStorage.setItem(
+  KEY,
+  JSON.stringify(db)
+ );
+
+}
+
+
+/* =========================================================
+   BUSCAR USUARIO
+   ========================================================= */
+
+function findUser(username){
+
+ ensureSecurityStorage();
+
+ return db.users.find(
+  x=>
+   String(x.username||"")
+    .trim()
+    .toLowerCase()===
+
+   String(username||"")
+    .trim()
+    .toLowerCase()
+ );
+
+}
+
+
+/* =========================================================
+   INICIAR SESIÓN
+   ========================================================= */
+
+function login(){
+
+ ensureSecurityStorage();
+
+
+ const username=
+  document
+   .getElementById("loginUser")
+   .value
+   .trim();
+
+ const password=
+  document
+   .getElementById("loginPassword")
+   .value;
+
+
+ if(!username){
+
+  toast("Ingresa el usuario.");
+
+  document
+   .getElementById("loginUser")
+   .focus();
+
+  return;
+
+ }
+
+
+ if(!password){
+
+  toast("Ingresa la contraseña.");
+
+  document
+   .getElementById("loginPassword")
+   .focus();
+
+  return;
+
+ }
+
+
+ const user=findUser(username);
+
+
+ if(
+  !user ||
+  String(user.password)!==
+  String(password)
+ ){
+
+  toast("Usuario o contraseña incorrectos.");
+
+  return;
+
+ }
+
+
+ if(user.status!=="ACTIVO"){
+
+  toast("Este usuario está inactivo.");
+
+  return;
+
+ }
+
+
+ currentUser={
+
+  id:user.id,
+  username:user.username,
+  name:user.name,
+  role:user.role
+
+ };
+
+
+ /*
+  * Registramos el inicio de sesión.
+  */
+
+ addAudit(
+  "INICIO DE SESIÓN",
+  `Usuario ${user.username} inició sesión.`
+ );
+
+
+ document
+  .getElementById("loginScreen")
+  .classList.add("hidden");
+
+
+ document
+  .getElementById("app")
+  .classList.remove("hidden");
+
+
+ updateCurrentUserUI();
+
+
+ refreshAll();
+
+}
+
+
+/* =========================================================
+   CERRAR SESIÓN
+   ========================================================= */
+
+function logout(){
+
+ if(!currentUser)return;
+
+ const confirmar=confirm(
+  "¿Deseas cerrar la sesión de " +
+  currentUser.username +
+  "?"
+ );
+
+ if(!confirmar){
+  return;
+ }
+
+ addAudit(  "CIERRE DE SESIÓN",
+  `Usuario ${currentUser.username} cerró sesión.`
+ );
+
+
+ currentUser=null;
+
+
+ document
+  .getElementById("app")
+  .classList.add("hidden");
+
+
+ document
+  .getElementById("loginScreen")
+  .classList.remove("hidden");
+
+
+ document
+  .getElementById("loginUser").value="";
+
+
+ document
+  .getElementById("loginPassword").value="";
+
+
+ document
+  .getElementById("loginUser").focus();
+
+}
+
+
+/* =========================================================
+   ACTUALIZAR USUARIO EN LA INTERFAZ
+   ========================================================= */
+
+function updateCurrentUserUI(){
+
+ if(!currentUser)return;
+
+
+ const userName=
+  document.getElementById("currentUserName");
+
+ const userRole=
+  document.getElementById("currentUserRole");
+
+
+ if(userName){
+
+  userName.textContent=
+   currentUser.name||
+   currentUser.username;
+
+ }
+
+
+ if(userRole){
+
+  userRole.textContent=
+   currentUser.role;
+
+ }
+
+}
+
+
+/* =========================================================
+   VERIFICAR ADMINISTRADOR
+   ========================================================= */
+
+function isAdmin(){
+
+ return !!currentUser &&
+  currentUser.role==="ADMINISTRADOR";
+
+}
+
+/* =========================================================
+   AUTORIZACIÓN DE ADMINISTRADOR PARA SALIDAS ESPECIALES
+   DAÑO / PÉRDIDA
+   ========================================================= */
+
+let adminAuthResolver = null;
+
+function solicitarAutorizacionAdminSalida(){
+
+ return new Promise((resolve)=>{
+
+  adminAuthResolver = resolve;
+
+  const modal =
+   document.getElementById("adminAuthModal");
+
+  const usuario =
+   document.getElementById("adminAuthUser");
+
+  const password =
+   document.getElementById("adminAuthPassword");
+
+  usuario.value = "";
+  password.value = "";
+
+  modal.style.display = "flex";
+
+  usuario.focus();
+
+ });
+}
+
+
+function confirmarAutorizacionAdminSalida(){
+
+ const username =
+  document.getElementById("adminAuthUser").value.trim();
+
+ const password =
+  document.getElementById("adminAuthPassword").value;
+
+
+ if(!username){
+
+  toast("Ingrese el usuario administrador.");
+
+  return;
+
+ }
+
+
+ if(!password){
+
+  toast("Ingrese la contraseña del administrador.");
+
+  return;
+
+ }
+
+
+ const user =
+  findUser(username);
+
+
+ if(!user){
+
+  toast("El usuario administrador no existe.");
+
+  return;
+
+ }
+
+
+ if(String(user.password)!==String(password)){
+
+  toast("Contraseña de administrador incorrecta.");
+
+  return;
+
+ }
+
+
+ if(user.status!=="ACTIVO"){
+
+  toast("El usuario administrador está inactivo.");
+
+  return;
+
+ }
+
+
+ if(user.role!=="ADMINISTRADOR"){
+
+  toast(
+   "El usuario ingresado no tiene permisos de administrador."
+  );
+
+  return;
+
+ }
+
+
+ const autorizado = {
+
+  id:user.id,
+
+  username:user.username,
+
+  name:user.name
+
+ };
+
+
+ const modal =
+  document.getElementById("adminAuthModal");
+
+ modal.style.display = "none";
+
+
+ if(adminAuthResolver){
+
+  const resolve = adminAuthResolver;
+
+  adminAuthResolver = null;
+
+  resolve(autorizado);
+
+ }
+
+}
+
+
+function cancelarAutorizacionAdminSalida(){
+
+ const modal =
+  document.getElementById("adminAuthModal");
+
+ modal.style.display = "none";
+
+
+ if(adminAuthResolver){
+
+  const resolve = adminAuthResolver;
+
+  adminAuthResolver = null;
+
+  resolve(null);
+
+ }
+
+} 
+/* =========================================================
+   GESTIÓN DE USUARIOS
+   ========================================================= */
+
+function clearUserForm(){
+
+  const form=document.getElementById("userForm");
+
+  if(form){
+    form.reset();
+  }
+
+  const role=document.getElementById("uRole");
+  const status=document.getElementById("uStatus");
+
+  if(role) role.value="TRABAJADOR";
+  if(status) status.value="ACTIVO";
+}
+
+
+/* =========================================================
+   GUARDAR / EDITAR USUARIO
+   ========================================================= */
+
+function saveUser(){
+
+  if(!isAdmin()){
+    toast("Solo el administrador puede gestionar usuarios.");
+    return;
+  }
+
+  ensureSecurityStorage();
+
+  const username=
+    document.getElementById("uUsername").value.trim().toUpperCase();
+
+  const name=
+    document.getElementById("uName").value.trim();
+
+  const password=
+    document.getElementById("uPassword").value;
+
+  const role=
+    document.getElementById("uRole").value;
+
+  const status=
+    document.getElementById("uStatus").value;
+
+  if(!username){
+    toast("Ingresa el usuario.");
+    return;
+  }
+
+  if(!name){
+    toast("Ingresa el nombre completo.");
+    return;
+  }
+
+  if(!password){
+    toast("Ingresa la contraseña.");
+    return;
+  }
+
+  /* Evitar usuarios duplicados */
+
+  const existe=db.users.find(
+    x=>
+      String(x.username||"").toUpperCase()===username &&
+      String(x.id)!==String(window.usuarioEditandoId||"")
+  );
+
+  if(existe){
+    toast("Ese usuario ya existe.");
+    return;
+  }
+
+  /* =====================================================
+     EDITAR USUARIO
+     ===================================================== */
+
+  if(window.usuarioEditandoId){
+
+    const user=db.users.find(
+      x=>String(x.id)===String(window.usuarioEditandoId)
+    );
+
+    if(!user){
+      toast("No se encontró el usuario.");
+      return;
+    }
+
+    /* No permitir dejar al último administrador inactivo */
+
+    if(
+      user.role==="ADMINISTRADOR" &&
+      role!=="ADMINISTRADOR"
+    ){
+
+      const administradoresActivos=db.users.filter(
+        x=>
+          x.role==="ADMINISTRADOR" &&
+          x.status==="ACTIVO" &&
+          String(x.id)!==String(user.id)
+      );
+
+      if(administradoresActivos.length===0){
+        toast("Debe existir al menos un administrador activo.");
+        return;
+      }
+    }
+
+    user.username=username;
+    user.name=name;
+    user.password=password;
+    user.role=role;
+    user.status=status;
+
+    addAudit(
+      "USUARIO MODIFICADO",
+      `Se modificó el usuario ${username}.`
+    );
+
+    window.usuarioEditandoId=null;
+
+    clearUserForm();
+    renderUsers();
+    updateCurrentUserUI();
+
+    toast("Usuario actualizado correctamente.");
+
+    return;
+  }
+
+
+  /* =====================================================
+     CREAR NUEVO USUARIO
+     ===================================================== */
+
+  const nuevoUsuario={
+
+    id:nextId(db.users),
+
+    username:username,
+
+    password:password,
+
+    name:name,
+
+    role:role,
+
+    status:status
+  };
+
+  db.users.push(nuevoUsuario);
+
+  addAudit(
+    "USUARIO CREADO",
+    `Se creó el usuario ${username} con rol ${role}.`
+  );
+
+  clearUserForm();
+  renderUsers();
+
+  toast("Usuario creado correctamente.");
+}
+
+
+/* =========================================================
+   MOSTRAR USUARIOS
+   ========================================================= */
+
+function renderUsers(){
+
+  const tbody=document.getElementById("usersRows");
+
+  if(!tbody)return;
+
+  ensureSecurityStorage();
+
+  tbody.innerHTML=
+    db.users.map(user=>`
+
+      <tr>
+
+        <td>${escapeHtml(String(user.id||""))}</td>
+
+        <td>
+          <b>${escapeHtml(user.username||"")}</b>
+        </td>
+
+        <td>
+          ${escapeHtml(user.name||"")}
+        </td>
+
+        <td>
+          ${escapeHtml(user.role||"")}
+        </td>
+
+        <td>
+          <span class="badge ${
+            user.status==="ACTIVO"
+              ? "ok"
+              : "danger"
+          }">
+            ${escapeHtml(user.status||"")}
+          </span>
+        </td>
+
+        <td style="white-space:nowrap">
+
+          <button
+            class="btn"
+            type="button"
+            onclick="editUser('${escapeHtml(String(user.id))}')">
+            ✏️ Editar
+          </button>
+
+          <button
+            class="btn"
+            type="button"
+            onclick="toggleUserStatus('${escapeHtml(String(user.id))}')">
+            ${
+              user.status==="ACTIVO"
+                ? "⛔ Desactivar"
+                : "✅ Activar"
+            }
+          </button>
+
+        </td>
+
+      </tr>
+
+    `).join("") ||
+
+    `<tr>
+      <td colspan="6" class="empty">
+        No hay usuarios registrados.
+      </td>
+    </tr>`;
+}
+
+
+/* =========================================================
+   EDITAR USUARIO
+   ========================================================= */
+
+function editUser(id){
+
+  if(!isAdmin()){
+    toast("Solo el administrador puede editar usuarios.");
+    return;
+  }
+
+  const user=db.users.find(
+    x=>String(x.id)===String(id)
+  );
+
+  if(!user){
+    toast("No se encontró el usuario.");
+    return;
+  }
+
+  window.usuarioEditandoId=user.id;
+
+  document.getElementById("uUsername").value=
+    user.username||"";
+
+  document.getElementById("uName").value=
+    user.name||"";
+
+  document.getElementById("uPassword").value=
+    user.password||"";
+
+  document.getElementById("uRole").value=
+    user.role||"TRABAJADOR";
+
+  document.getElementById("uStatus").value=
+    user.status||"ACTIVO";
+
+  document.getElementById("uUsername").focus();
+
+  toast(`Editando usuario ${user.username}.`);
+}
+
+
+/* =========================================================
+   ACTIVAR / DESACTIVAR USUARIO
+   ========================================================= */
+
+function toggleUserStatus(id){
+
+  if(!isAdmin()){
+    toast("Solo el administrador puede cambiar usuarios.");
+    return;
+  }
+
+  const user=db.users.find(
+    x=>String(x.id)===String(id)
+  );
+
+  if(!user){
+    toast("No se encontró el usuario.");
+    return;
+  }
+
+  /* No permitir que el administrador se desactive a sí mismo */
+
+  if(
+    currentUser &&
+    String(user.id)===String(currentUser.id) &&
+    user.status==="ACTIVO"
+  ){
+    toast("No puedes desactivar tu propio usuario.");
+    return;
+  }
+
+  /* No permitir dejar el sistema sin administrador */
+
+  if(
+    user.role==="ADMINISTRADOR" &&
+    user.status==="ACTIVO"
+  ){
+
+    const adminsActivos=db.users.filter(
+      x=>
+        x.role==="ADMINISTRADOR" &&
+        x.status==="ACTIVO" &&
+        String(x.id)!==String(user.id)
+    );
+
+    if(adminsActivos.length===0){
+
+      toast(
+        "No puedes desactivar al único administrador activo."
+      );
+
+      return;
+    }
+  }
+
+  const nuevoEstado=
+    user.status==="ACTIVO"
+      ? "INACTIVO"
+      : "ACTIVO";
+
+  user.status=nuevoEstado;
+
+  addAudit(
+    nuevoEstado==="ACTIVO"
+      ? "USUARIO ACTIVADO"
+      : "USUARIO DESACTIVADO",
+    `Usuario ${user.username}: ${nuevoEstado}.`
+  );
+
+  renderUsers();
+
+  toast(
+    nuevoEstado==="ACTIVO"
+      ? "Usuario activado."
+      : "Usuario desactivado."
+  );
+}
+
+
+/* =========================================================
+   AUDITORÍA
+   ========================================================= */
+
+function renderAudit(){
+
+  const tbody=document.getElementById("auditRows");
+
+  if(!tbody)return;
+
+  ensureSecurityStorage();
+
+  const rows=
+    [...db.audit]
+      .reverse();
+
+  tbody.innerHTML=
+    rows.map(x=>`
+
+      <tr>
+
+        <td>
+          ${escapeHtml(x.date||"")}
+        </td>
+
+        <td>
+          ${escapeHtml(x.time||"")}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            x.userName ||
+            x.username ||
+            "SISTEMA"
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(x.role||"")}
+        </td>
+
+        <td>
+          <b>${escapeHtml(x.action||"")}</b>
+        </td>
+
+        <td>
+          ${escapeHtml(x.detail||"")}
+        </td>
+
+      </tr>
+
+    `).join("") ||
+
+    `<tr>
+      <td colspan="6" class="empty">
+        No hay registros de auditoría.
+      </td>
+    </tr>`;
+}
+
+/* =========================================================
+   NAVEGACIÓN
+   ========================================================= */
+
+
+function nav(id,btn){
+
+ /*
+  * Primero cambiamos la sección.
+  */
+
+ document
+  .querySelectorAll(".section")
+  .forEach(x=>x.classList.remove("active"));
+
+
+ const section=document.getElementById(id);
+
+ if(section){
+  section.classList.add("active");
+ }
+
+
+ /*
+  * Marcamos el botón seleccionado.
+  */
+
+ document
+  .querySelectorAll(".nav button")
+  .forEach(x=>x.classList.remove("active"));
+
+
+ if(btn){
+
+  btn.classList.add("active");
+
+  document.getElementById("title").textContent=
+   btn.dataset.title||"Sistema";
+
+  document.getElementById("subtitle").textContent=
+   btn.dataset.sub||"Módulo del sistema";
+
+ }
+
+
+ /*
+  * IMPORTANTE:
+  * En celulares cerramos el menú.
+  *
+  * Esto aplica a:
+  * Dashboard
+  * Productos
+  * Entradas
+  * Ventas
+  * Salidas
+  * Inventario
+  * Clientes
+  * Reportes
+  */
+
+ const side=document.getElementById("side");
+
+ if(window.innerWidth<=800){
+
+  side.classList.remove("open");
+
+ }
+
+
+ refreshAll();
+
+}
+
+
+function toggleMenu(){
+
+ const side=document.getElementById("side");
+
+ side.classList.toggle("open");
+
+}
+
+window.addEventListener("resize",function(){
+
+ const side=
+  document.getElementById("side");
+
+ if(window.innerWidth>800){
+
+  side.classList.remove("open");
+
+ }
+
+});
+
+/*
+ * Si el usuario toca fuera del menú en celular,
+ * también lo cerramos.
+ */
+
+document.addEventListener("click",function(e){
+
+ if(window.innerWidth>800)return;
+
+ const side=document.getElementById("side");
+ const hamb=document.querySelector(".hamb");
+
+ if(
+  side.classList.contains("open") &&
+  !side.contains(e.target) &&
+  !hamb.contains(e.target)
+ ){
+
+  side.classList.remove("open");
+
+ }
+
+});
+
+
+function product(codeOrName){
+
+ let q=String(codeOrName||"")
+  .trim()
+  .toLowerCase();
+
+ return db.inventory.find(
+  p=>String(p.code).toLowerCase()===q
+ )||
+ db.inventory.find(
+  p=>p.name.toLowerCase().includes(q)
+ );
+
+}
+
+
+function renderDashboard(){
+
+ const sales=db.salesLines.reduce(
+  (a,x)=>a+x.total,
+  0
+ );
+
+ const buys=db.entries
+  .filter(x=>x.date.slice(0,7)===today().slice(0,7))
+  .reduce((a,x)=>a+x.total,0);
+
+ const stock=db.inventory.reduce(
+  (a,x)=>a+x.qty*x.cost,
+  0
+ );
+
+ const low=db.inventory.filter(
+  x=>x.min>0&&x.qty<=x.min
+ ).length;
+
+
+ document.getElementById("kProducts").textContent=
+  db.products.length;
+
+ document.getElementById("kSales").textContent=
+  money(sales);
+
+ document.getElementById("kBuys").textContent=
+  money(buys);
+
+ document.getElementById("kStock").textContent=
+  money(stock);
+
+ document.getElementById("kLow").textContent=
+  low;
+
+
+ let months=[
+  "Ene","Feb","Mar","Abr","May","Jun",
+  "Jul","Ago","Sep","Oct","Nov","Dic"
+ ];
+
+ let vals=months.map(
+  (m,i)=>
+   db.salesLines
+    .filter(x=>new Date(x.date).getMonth()===i)
+    .reduce((a,x)=>a+x.total,0)
+ );
+
+ let max=Math.max(1,...vals);
+
+
+ document.getElementById("salesChart").innerHTML=
+
+ vals.map(
+  (v,i)=>`
+
+   <div style="
+    flex:1;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-end;
+    gap:4px">
+
+    <span style="
+     font-size:9px;
+     color:#6b7280">
+
+     ${v?money(v):""}
+
+    </span>
+
+    <div style="
+     width:100%;
+     max-width:38px;
+     height:${Math.max(3,v/max*160)}px;
+     background:#2563eb;
+     border-radius:5px 5px 0 0">
+    </div>
+
+    <span style="
+     font-size:10px;
+     color:#6b7280">
+
+     ${months[i]}
+
+    </span>
+
+   </div>
+
+  `
+ ).join("");
+
+
+ document.getElementById("alerts").innerHTML=
+
+ db.inventory.map(
+  x=>{
+
+   let cls=
+    x.min>0&&x.qty<=x.min
+     ?"red"
+     :x.qty===0
+      ?"red"
+      :"green";
+
+   let txt=
+    x.qty===0
+     ?"AGOTADO"
+     :x.min>0&&x.qty<=x.min
+      ?"STOCK BAJO"
+      :"DISPONIBLE";
+
+   return `
+    <div class="line">
+     <span>${x.name}</span>
+     <span class="badge ${cls}">
+      ${txt}
+     </span>
+    </div>
+   `;
+
+  }
+ ).join("")
+ ||
+ `<div class="empty">Sin alertas.</div>`;
+
+
+ document.getElementById("moves").innerHTML=
+
+ [
+  ...db.entries.map(
+   x=>({
+    date:x.date,
+    type:"ENTRADA",
+    name:x.name,
+    qty:x.qty,
+    total:x.total
+   })
+  ),
+
+  ...db.salesLines.map(
+   x=>({
+    date:x.date,
+    type:"VENTA",
+    name:x.name,
+    qty:x.qty,
+    total:x.total
+   })
+  )
+
+ ]
+ .sort((a,b)=>b.date.localeCompare(a.date))
+ .slice(0,8)
+ .map(
+  x=>`
+   <tr>
+    <td>${x.date}</td>
+    <td>${x.type}</td>
+    <td>${x.name}</td>
+    <td>${x.qty}</td>
+    <td>${money(x.total)}</td>
+   </tr>
+  `
+ )
+ .join("");
+
+}
+/* =========================================================
+   CLIENTES
+   ========================================================= */
+
+
+/* =========================================================
+   ASEGURAR ESTRUCTURA DE CLIENTES
+   ========================================================= */
+
+function ensureClientStorage(){
+
+ if(!Array.isArray(db.clients))
+  db.clients=[];
+
+}
+
+
+/* =========================================================
+   GENERAR ID DE CLIENTE
+   ========================================================= */
+
+function generateClientId(){
+
+ ensureClientStorage();
+
+ return String(
+  Math.max(
+   0,
+   ...db.clients.map(x=>Number(x.id)||0)
+  )+1
+ );
+
+}
+
+
+/* =========================================================
+   LIMPIAR FORMULARIO
+   ========================================================= */
+
+function clearClientForm(){
+
+ document.getElementById("clientFormTitle").textContent=
+  "Nuevo cliente";
+
+ document.getElementById("cDocType").value="CC";
+ document.getElementById("cDoc").value="";
+ document.getElementById("cName").value="";
+ document.getElementById("cPhone").value="";
+ document.getElementById("cEmail").value="";
+ document.getElementById("cCity").value="";
+ document.getElementById("cAddress").value="";
+ document.getElementById("cStatus").value="ACTIVO";
+
+ document.getElementById("clientForm").dataset.editing="";
+
+}
+
+
+/* =========================================================
+   GUARDAR / EDITAR CLIENTE
+   ========================================================= */
+
+function saveClient(){
+
+ ensureClientStorage();
+
+
+ const docType=
+  document.getElementById("cDocType").value.trim();
+
+ const doc=
+  document.getElementById("cDoc").value.trim();
+
+ const name=
+  document.getElementById("cName").value.trim();
+
+ const phone=
+  document.getElementById("cPhone").value.trim();
+
+ const email=
+  document.getElementById("cEmail").value.trim();
+
+ const city=
+  document.getElementById("cCity").value.trim();
+
+ const address=
+  document.getElementById("cAddress").value.trim();
+
+ const status=
+  document.getElementById("cStatus").value;
+
+
+ /* =====================================================
+    VALIDACIONES
+    ===================================================== */
+
+ if(!doc){
+
+  toast("Ingresa el número de documento.");
+
+  document.getElementById("cDoc").focus();
+
+  return;
+
+ }
+
+
+ if(!name){
+
+  toast("Ingresa el nombre del cliente.");
+
+  document.getElementById("cName").focus();
+
+  return;
+
+ }
+
+
+ /* =====================================================
+    CLIENTE EN EDICIÓN
+    ===================================================== */
+
+ const editingId=
+  document.getElementById("clientForm").dataset.editing;
+
+
+ /* =====================================================
+    EVITAR DOCUMENTOS DUPLICADOS
+    ===================================================== */
+
+ const duplicate=
+  db.clients.find(
+   x=>
+    String(x.doc).trim().toLowerCase()===
+    doc.toLowerCase() &&
+    String(x.id)!==
+    String(editingId||"")
+  );
+
+
+ if(duplicate){
+
+  toast(
+   "Ya existe un cliente con ese documento."
+  );
+
+  return;
+
+ }
+
+
+ /* =====================================================
+    EDITAR
+    ===================================================== */
+
+ if(editingId){
+
+  const client=
+   db.clients.find(
+    x=>String(x.id)===String(editingId)
+   );
+
+
+  if(!client){
+
+   toast("No se encontró el cliente.");
+
+   return;
+
+  }
+
+
+  client.docType=docType;
+  client.doc=doc;
+  client.name=name;
+  client.phone=phone;
+  client.email=email;
+  client.city=city;
+  client.address=address;
+  client.status=status;
+
+
+  save();
+
+  clearClientForm();
+
+  renderClients();
+
+  renderClientSelect();
+
+  toast("Cliente actualizado correctamente.");
+
+  return;
+
+ }
+
+
+ /* =====================================================
+    NUEVO CLIENTE
+    ===================================================== */
+
+ const client={
+
+  id:generateClientId(),
+
+  docType,
+  doc,
+  name,
+  phone,
+  email,
+  city,
+  address,
+  status
+
+ };
+
+
+ db.clients.push(client);
+
+
+ save();
+
+ clearClientForm();
+
+ renderClients();
+
+ renderClientSelect();
+
+ toast("Cliente registrado correctamente.");
+
+}
+
+
+/* =========================================================
+   EDITAR CLIENTE
+   ========================================================= */
+
+function editClient(id){
+
+ ensureClientStorage();
+
+
+ const client=
+  db.clients.find(
+   x=>String(x.id)===String(id)
+  );
+
+
+ if(!client){
+
+  toast("No se encontró el cliente.");
+
+  return;
+
+ }
+
+
+ document.getElementById("clientFormTitle").textContent=
+  "Editar cliente";
+
+
+ document.getElementById("cDocType").value=
+  client.docType||"CC";
+
+ document.getElementById("cDoc").value=
+  client.doc||"";
+
+ document.getElementById("cName").value=
+  client.name||"";
+
+ document.getElementById("cPhone").value=
+  client.phone||"";
+
+ document.getElementById("cEmail").value=
+  client.email||"";
+
+ document.getElementById("cCity").value=
+  client.city||"";
+
+ document.getElementById("cAddress").value=
+  client.address||"";
+
+ document.getElementById("cStatus").value=
+  client.status||"ACTIVO";
+
+
+ document.getElementById("clientForm").dataset.editing=
+  client.id;
+
+
+ document.getElementById("cName").focus();
+
+}
+
+
+/* =========================================================
+   ACTIVAR / DESACTIVAR CLIENTE
+   ========================================================= */
+
+function toggleClientStatus(id){
+
+ ensureClientStorage();
+
+
+ const client=
+  db.clients.find(
+   x=>String(x.id)===String(id)
+  );
+
+
+ if(!client){
+
+  toast("No se encontró el cliente.");
+
+  return;
+
+ }
+
+
+ if(client.status==="ACTIVO"){
+
+  client.status="INACTIVO";
+
+ }else{
+
+  client.status="ACTIVO";
+
+ }
+
+
+ save();
+
+ renderClients();
+
+ renderClientSelect();
+
+ toast(
+  client.status==="ACTIVO"
+   ?
+    "Cliente activado."
+   :
+    "Cliente desactivado."
+ );
+
+}
+
+
+/* =========================================================
+   MOSTRAR CLIENTES
+   ========================================================= */
+
+function renderClients(){
+
+ ensureClientStorage();
+
+
+ const q=
+  (
+   document.getElementById("clientSearch")?.value||""
+  )
+  .toLowerCase()
+  .trim();
+
+
+ const rows=
+  db.clients.filter(
+   x=>
+    [
+     x.id,
+     x.docType,
+     x.doc,
+     x.name,
+     x.phone,
+     x.email,
+     x.city,
+     x.address,
+     x.status
+    ]
+    .join(" ")
+    .toLowerCase()
+    .includes(q)
+  );
+
+
+ document.getElementById("clientsRows").innerHTML=
+
+  rows.map(
+   x=>`
+
+    <tr>
+
+     <td>
+      ${escapeHtml(String(x.id))}
+     </td>
+
+     <td>
+
+      <b>
+       ${escapeHtml(x.doc||"")}
+      </b>
+
+      <div class="muted"
+           style="font-size:10px">
+
+       ${escapeHtml(x.docType||"")}
+
+      </div>
+
+     </td>
+
+
+     <td>
+
+      <b>
+       ${escapeHtml(x.name||"")}
+      </b>
+
+      ${
+       x.address
+        ?
+        `<div class="muted"
+              style="font-size:10px">
+          ${escapeHtml(x.address)}
+         </div>`
+        :
+        ""
+      }
+
+     </td>
+
+
+     <td>
+      ${escapeHtml(x.phone||"")}
+     </td>
+
+
+     <td>
+      ${escapeHtml(x.email||"")}
+     </td>
+
+
+     <td>
+      ${escapeHtml(x.city||"")}
+     </td>
+
+
+     <td>
+
+      <span class="badge ${
+       x.status==="ACTIVO"
+        ?"green"
+        :"red"
+      }">
+
+       ${escapeHtml(x.status||"ACTIVO")}
+
+      </span>
+
+     </td>
+
+
+     <td>
+
+      <div class="actions">
+
+       <button
+        class="btn small"
+        onclick="editClient('${escapeHtml(String(x.id))}')">
+
+        ✏️ Editar
+
+       </button>
+
+
+       <button
+        class="btn small ${
+         x.status==="ACTIVO"
+          ?"danger"
+          :"success"
+        }"
+        onclick="toggleClientStatus('${escapeHtml(String(x.id))}')">
+
+        ${
+         x.status==="ACTIVO"
+          ?
+           "Desactivar"
+          :
+           "Activar"
+        }
+
+       </button>
+
+      </div>
+
+     </td>
+
+    </tr>
+
+   `
+  ).join("")
+
+ ||
+
+ `
+  <tr>
+   <td colspan="8"
+       class="empty">
+
+    No hay clientes registrados.
+
+   </td>
+  </tr>
+ `;
+
+}
+
+
+/* =========================================================
+   CARGAR CLIENTES EN VENTAS
+   ========================================================= */
+
+function renderClientSelect(){
+
+ ensureClientStorage();
+
+
+ const select=
+  document.getElementById("client");
+
+
+ if(!select)return;
+
+
+ const current=
+  select.value;
+
+
+ select.innerHTML=`
+
+  <option value="">
+   CONSUMIDOR FINAL
+  </option>
+
+ `;
+
+
+ db.clients
+  .filter(
+   x=>x.status==="ACTIVO"
+  )
+  .sort(
+   (a,b)=>
+    String(a.name||"")
+    .localeCompare(
+     String(b.name||"")
+    )
+  )
+  .forEach(
+   x=>{
+
+    const option=
+     document.createElement("option");
+
+    option.value=
+     x.id;
+
+    option.textContent=
+     `${x.name} · ${x.doc}`;
+
+    select.appendChild(option);
+
+   }
+  );
+
+
+ if(
+  current &&
+  [...select.options].some(
+   o=>o.value===current
+  )
+ ){
+
+  select.value=current;
+
+ }else{
+
+  select.value="";
+
+ }
+
+}
+
+function renderProducts(){
+
+ const q=
+  (
+   document.getElementById("prodSearch")?.value||""
+  ).toLowerCase().trim();
+
+
+ let rows=db.products.filter(
+  x=>
+   [
+    x.code,
+    x.name,
+    x.brand,
+    x.category,
+    x.model,
+    x.measure
+   ]
+   .join(" ")
+   .toLowerCase()
+   .includes(q)
+ );
+
+
+ document.getElementById("productsRows").innerHTML=
+
+ rows.map(
+  x=>`
+
+   <tr>
+
+    <td>${escapeHtml(x.code)}</td>
+
+    <td>
+     <b>${escapeHtml(x.name)}</b>
+     ${
+      x.model
+       ?
+       `<div class="muted"
+             style="font-size:10px">
+          ${escapeHtml(x.model)}
+        </div>`
+       :
+       ""
+     }
+    </td>
+
+    <td>${escapeHtml(x.category||"")}</td>
+
+    <td>${escapeHtml(x.brand||"")}</td>
+
+    <td>${escapeHtml(x.measure||"")}</td>
+
+    <td>${money(x.sale)}</td>
+
+    <td>${Number(x.gain)||0}%</td>
+
+    <td>
+
+     <span class="badge ${
+      x.status==="ACTIVO"
+       ?"green"
+       :"red"
+     }">
+
+      ${x.status||"ACTIVO"}
+
+     </span>
+
+    </td>
+
+    <td>
+
+     <div class="actions">
+
+      <button
+       class="btn small"
+       onclick="editProduct('${escapeHtml(x.code)}')">
+
+       ✏️ Editar
+
+      </button>
+
+      <button
+       class="btn small ${
+        x.status==="ACTIVO"
+         ?"danger"
+         :"success"
+       }"
+       onclick="toggleProductStatus('${escapeHtml(x.code)}')">
+
+       ${
+        x.status==="ACTIVO"
+         ?
+          "Desactivar"
+         :
+          "Activar"
+       }
+
+      </button>
+
+     </div>
+
+    </td>
+
+   </tr>
+
+  `
+ ).join("")
+ ||
+ `
+  <tr>
+   <td colspan="9" class="empty">
+    No hay productos.
+   </td>
+  </tr>
+ `;
+
+}
+
+function addProduct(){
+
+ const form=
+  document.getElementById("productForm");
+
+
+ const editingCode=
+  form.dataset.editingCode||"";
+
+
+ const p={
+
+  code:
+   document.getElementById("pCode")
+    .value.trim(),
+
+  category:
+   document.getElementById("pCat")
+    .value.trim(),
+
+  name:
+   document.getElementById("pName")
+    .value.trim(),
+
+  brand:
+   document.getElementById("pBrand")
+    .value.trim(),
+
+  model:
+   document.getElementById("pModel")
+    .value.trim(),
+
+  measure:
+   document.getElementById("pMeasure")
+    .value.trim()
+   ||
+   "UNIDAD",
+
+  gain:
+   num(
+    document.getElementById("pGain").value
+   ),
+
+  sale:
+   num(
+    document.getElementById("pSale").value
+   ),
+
+  iva:
+   num(
+    document.getElementById("pIva").value
+   ),
+
+  min:
+   num(
+    document.getElementById("pMin").value
+   ),
+
+  notes:
+   document.getElementById("pNotes")
+    .value.trim(),
+
+  status:"ACTIVO"
+
+ };
+
+
+ if(!p.code){
+
+  toast("El código es obligatorio.");
+
+  return;
+
+ }
+
+
+ if(!p.name){
+
+  toast("El nombre del producto es obligatorio.");
+
+  return;
+
+ }
+
+
+ /*
+  * =====================================================
+  * MODO EDICIÓN
+  * =====================================================
+  */
+
+ if(editingCode){
+
+  const original=
+   db.products.find(
+    x=>String(x.code)===String(editingCode)
+   );
+
+
+  if(!original){
+
+   toast("No se encontró el producto original.");
+
+   return;
+
+  }
+
+
+  /*
+   * No permitimos cambiar el código
+   * durante la edición.
+   */
+
+  p.code=original.code;
+
+
+  original.category=p.category;
+  original.name=p.name;
+  original.brand=p.brand;
+  original.model=p.model;
+  original.measure=p.measure;
+  original.gain=p.gain;
+  original.sale=p.sale;
+  original.iva=p.iva;
+  original.min=p.min;
+  original.notes=p.notes;
+
+
+  /*
+   * Actualizar también inventario,
+   * pero SIN modificar cantidad ni costo.
+   */
+
+  const inv=
+   db.inventory.find(
+    x=>String(x.code)===String(original.code)
+   );
+
+
+  if(inv){
+
+   inv.name=p.name;
+   inv.brand=p.brand;
+   inv.model=p.model;
+   inv.category=p.category;
+   inv.measure=
+    inventoryMeasure(p.measure);
+   inv.sale=p.sale;
+   inv.iva=p.iva;
+   inv.min=p.min;
+
+
+   inv.status=
+    Number(inv.qty)<=0
+     ?
+      "AGOTADO"
+     :
+      (
+       p.min>0&&
+       Number(inv.qty)<=Number(p.min)
+       ?
+        "STOCK BAJO"
+       :
+        "DISPONIBLE"
+      );
+
+  }
+
+
+  delete form.dataset.editingCode;
+
+
+  const button=
+   form.querySelector("button.primary");
+
+
+  if(button){
+
+   button.textContent=
+    "Guardar producto";
+
+  }
+
+
+  save();
+
+  form.reset();
+
+  document.getElementById("pMeasure").value=
+   "UNIDAD";
+
+  document.getElementById("pIva").value=
+   "0";
+
+  document.getElementById("pMin").value=
+   "0";
+
+
+  toast(
+   "Producto actualizado correctamente."
+  );
+
+
+  return;
+
+ }
+
+
+ /*
+  * =====================================================
+  * NUEVO PRODUCTO
+  * =====================================================
+  */
+
+
+ if(
+  db.products.some(
+   x=>
+    String(x.code).toLowerCase()===
+    String(p.code).toLowerCase()
+  )
+ ){
+
+  toast(
+   "Ese código ya está registrado."
+  );
+
+  return;
+
+ }
+
+
+ db.products.push(p);
+
+
+ /*
+  * Crear inventario inicial en cero.
+  */
+
+ if(
+  !db.inventory.some(
+   x=>String(x.code)===String(p.code)
+  )
+ ){
+
+  db.inventory.push({
+
+   code:p.code,
+
+   name:p.name,
+
+   brand:p.brand,
+
+   model:p.model,
+
+   category:p.category,
+
+   qty:0,
+
+   measure:
+    inventoryMeasure(p.measure),
+
+   cost:0,
+
+   sale:p.sale,
+
+   iva:p.iva,
+
+   lastEntry:"",
+
+   min:p.min,
+
+   status:"AGOTADO"
+
+  });
+
+ }
+
+
+ save();
+
+
+ form.reset();
+
+
+ document.getElementById("pMeasure").value=
+  "UNIDAD";
+
+ document.getElementById("pIva").value=
+  "0";
+
+ document.getElementById("pMin").value=
+  "0";
+
+
+ toast(
+  "Producto creado correctamente."
+ );
+
+}
+
+function editProduct(code){
+
+ const p=
+  db.products.find(
+   x=>String(x.code)===String(code)
+  );
+
+
+ if(!p){
+
+  toast("Producto no encontrado.");
+
+  return;
+
+ }
+
+
+ document.getElementById("pCode").value=
+  p.code||"";
+
+ document.getElementById("pCat").value=
+  p.category||"";
+
+ document.getElementById("pName").value=
+  p.name||"";
+
+ document.getElementById("pBrand").value=
+  p.brand||"";
+
+ document.getElementById("pModel").value=
+  p.model||"";
+
+ document.getElementById("pMeasure").value=
+  p.measure||"UNIDAD";
+
+ document.getElementById("pGain").value=
+  p.gain||0;
+
+ document.getElementById("pSale").value=
+  p.sale||0;
+
+ document.getElementById("pIva").value=
+  p.iva||0;
+
+ document.getElementById("pMin").value=
+  p.min||0;
+
+ document.getElementById("pNotes").value=
+  p.notes||"";
+
+
+ const form=
+  document.getElementById("productForm");
+
+ form.dataset.editingCode=
+  p.code;
+
+
+ const button=
+  form.querySelector("button.primary");
+
+ if(button){
+
+  button.textContent=
+   "💾 Actualizar producto";
+
+ }
+
+
+ toast(
+  `Editando: ${p.name}`
+ );
+
+
+ window.scrollTo({
+  top:0,
+  behavior:"smooth"
+ });
+
+}
+
+
+function toggleProductStatus(code){
+
+ const p=
+  db.products.find(
+   x=>String(x.code)===String(code)
+  );
+
+
+ if(!p){
+
+  toast("Producto no encontrado.");
+
+  return;
+
+ }
+
+
+ const nuevoEstado=
+  p.status==="ACTIVO"
+   ?
+    "INACTIVO"
+   :
+    "ACTIVO";
+
+
+ if(
+  !confirm(
+   `¿Desea ${nuevoEstado==="ACTIVO" ? "activar" : "desactivar"} el producto "${p.name}"?`
+  )
+ )return;
+
+
+ p.status=nuevoEstado;
+
+
+ /*
+  * También actualizamos el estado del inventario.
+  */
+
+ const inv=
+  db.inventory.find(
+   x=>String(x.code)===String(code)
+  );
+
+
+ if(inv){
+
+  if(nuevoEstado==="INACTIVO"){
+
+   inv.status="INACTIVO";
+
+  }else{
+
+   inv.status=
+    Number(inv.qty)<=0
+     ?
+      "AGOTADO"
+     :
+      (
+       inv.min>0&&
+       Number(inv.qty)<=Number(inv.min)
+       ?
+        "STOCK BAJO"
+       :
+        "DISPONIBLE"
+      );
+
+  }
+
+ }
+
+
+ save();
+
+ toast(
+  `Producto ${nuevoEstado==="ACTIVO" ? "activado" : "desactivado"}.`
+ );
+
+}
+
+function normalizeText(v){
+
+ return String(v??"").trim();
+
+}
+
+
+function isPackMeasure(m){
+
+ return [
+  "CAJA",
+  "PAQUETE",
+  "BOLSA",
+  "EMPAQUE"
+ ]
+ .includes(
+  String(m||"").toUpperCase()
+ );
+
+}
+
+
+function inventoryMeasure(m){
+
+ return isPackMeasure(m)
+  ?"UNIDAD"
+  :String(m||"").toUpperCase();
+
+}
+
+
+function loadEntryLists(){
+
+ const cats=[
+  ...new Set(
+   db.products
+    .map(x=>x.category)
+    .filter(Boolean)
+  )
+ ];
+
+ const prods=[
+  ...new Set(
+   db.products
+    .map(x=>x.name)
+    .filter(Boolean)
+  )
+ ];
+
+ const brands=[
+  ...new Set(
+   db.products
+    .map(x=>x.brand)
+    .filter(Boolean)
+  )
+ ];
+
+
+ document.getElementById("catList").innerHTML=
+  cats.map(
+   x=>`<option value="${escapeHtml(x)}">`
+  ).join("");
+
+ document.getElementById("prodList").innerHTML=
+  prods.map(
+   x=>`<option value="${escapeHtml(x)}">`
+  ).join("");
+
+ document.getElementById("brandList").innerHTML=
+  brands.map(
+   x=>`<option value="${escapeHtml(x)}">`
+  ).join("");
+
+}
+
+
+function escapeHtml(v){
+
+ return String(v??"")
+  .replace(
+   /[&<>"']/g,
+   ch=>({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#039;"
+   }[ch])
+  );
+
+}
+
+
+function todayDMY(){
+
+ const d=new Date();
+
+ const dd=String(
+  d.getDate()
+ ).padStart(2,"0");
+
+ const mm=String(
+  d.getMonth()+1
+ ).padStart(2,"0");
+
+ return `${dd}/${mm}/${d.getFullYear()}`;
+
+}
+
+
+function setEntryStatus(html){
+
+ document.getElementById("eStatus").innerHTML=html;
+
+}
+
+
+function clearEntryInputs(){
+
+ [
+  "eSearch",
+  "eCode",
+  "eCat",
+  "eName",
+  "eBrand",
+  "eModel",
+  "eQty",
+  "eBuy",
+  "eGain",
+  "eSale",
+  "eContent",
+  "eNotes"
+ ]
+ .forEach(
+  id=>{
+   const el=document.getElementById(id);
+   if(el)el.value="";
+  }
+ );
+
+ document.getElementById("eQty").value="1";
+
+ document.getElementById("eMeasure").value="";
+
+ document.getElementById("contentWrap").style.display="none";
+
+ document.getElementById("eFecha").value=
+  todayDMY();
+
+}
+
+
+function limpiarEntradaActual(){
+
+ if(entryCart.length===0){
+
+  toast(
+   "Primero agregue un producto con ENTRADA."
+  );
+
+  document.getElementById("eSearch").focus();
+
+  return;
+
+ }
+
+ clearEntryInputs();
+
+ setEntryStatus(
+  "Listo para registrar otro producto."
+ );
+
+ document.getElementById("eSearch").focus();
+
+}
+
+
+function toggleContentField(){
+
+ const visible=
+  isPackMeasure(
+   document.getElementById("eMeasure").value
+  );
+
+ document.getElementById("contentWrap").style.display=
+  visible?"block":"none";
+
+ if(!visible){
+
+  document.getElementById("eContent").value="1";
+
+ }
+
+}
+
+
+function generateManualCode(){
+
+ let n=1,code="";
+
+ const exists=c=>
+  db.products.some(
+   p=>String(p.code)===c
+  )
+  ||
+  db.inventory.some(
+   p=>String(p.code)===c
+  );
+
+
+ do{
+
+  code=
+   `MAN-${String(n).padStart(6,"0")}`;
+
+  n++;
+
+ }while(exists(code));
+
+
+ document.getElementById("eSearch").value=code;
+
+ document.getElementById("eCode").value=code;
+
+ setEntryStatus(
+  `<b>Código manual generado:</b> ${code}
+   <div class="muted">
+    Complete los datos del nuevo producto.
+   </div>`
+ );
+
+ document.getElementById("eName").focus();
+
+}
+
+
+function buscarEntradaPorCodigo(){
+
+ const code=
+  normalizeText(
+   document.getElementById("eSearch").value
+  );
+
+
+ if(!code){
+
+  toast("Ingrese o escanee el código.");
+
+  document.getElementById("eSearch").focus();
+
+  return;
+
+ }
+
+
+ const inv=
+  db.inventory.find(
+   p=>String(p.code)===code
+  );
+
+ const pr=
+  db.products.find(
+   p=>String(p.code)===code
+  );
+
+
+ if(pr||inv){
+
+  const p=pr||inv;
+
+  document.getElementById("eCode").value=code;
+
+  document.getElementById("eCat").value=
+   p.category||"";
+
+  document.getElementById("eName").value=
+   p.name||"";
+
+  document.getElementById("eBrand").value=
+   p.brand||"";
+
+  document.getElementById("eModel").value=
+   p.model||"";
+
+  document.getElementById("eMeasure").value=
+   p.measure||"UNIDAD";
+
+  document.getElementById("eGain").value=
+   pr?.gain??0;
+
+  document.getElementById("eSale").value=
+   Number(pr?.sale??p.sale??0);
+
+  document.getElementById("eNotes").value=
+   pr?.notes||"";
+
+  document.getElementById("eQty").value=1;
+
+  document.getElementById("eBuy").value="";
+
+  document.getElementById("eContent").value="1";
+
+  toggleContentField();
+
+  setEntryStatus(
+   `<b>Producto encontrado.</b>
+    <div class="muted">
+     ${escapeHtml(p.name)}
+     ·
+     ${escapeHtml(p.brand||"")}
+     · Código:
+     ${escapeHtml(code)}
+    </div>`
+  );
+
+  document.getElementById("eBuy").focus();
+
+  return;
+
+ }
+
+
+ const ok=confirm(
+  `El código ${code} no está registrado.\n\n¿Desea registrar este producto nuevo?`
+ );
+
+
+ if(ok){
+
+  clearEntryInputs();
+
+  document.getElementById("eSearch").value=code;
+
+  document.getElementById("eCode").value=code;
+
+  document.getElementById("eQty").value=1;
+
+  setEntryStatus(
+   `<b>Producto nuevo.</b>
+    <div class="muted">
+     El código ${escapeHtml(code)}
+     quedó asignado. Complete los datos.
+    </div>`
+  );
+
+  document.getElementById("eName").focus();
+
+ }else{
+
+  document.getElementById("eSearch").value="";
+
+  document.getElementById("eSearch").focus();
+
+ }
+
+}
+
+
+function buscarDatosEntradaPorProducto(){
+
+ const name=
+  normalizeText(
+   document.getElementById("eName").value
+  ).toLowerCase();
+
+ if(!name)return;
+
+
+ const p=
+  db.products.find(
+   x=>String(x.name).toLowerCase()===name
+  )
+  ||
+  db.products.find(
+   x=>String(x.name).toLowerCase().includes(name)
+  );
+
+
+ if(!p)return;
+
+
+ document.getElementById("eCode").value=p.code;
+
+ document.getElementById("eCat").value=
+  p.category||"";
+
+ document.getElementById("eBrand").value=
+  p.brand||"";
+
+ document.getElementById("eModel").value=
+  p.model||"";
+
+ document.getElementById("eMeasure").value=
+  p.measure||"UNIDAD";
+
+ document.getElementById("eGain").value=
+  p.gain||0;
+
+ document.getElementById("eSale").value=
+  p.sale||0;
+
+ document.getElementById("eNotes").value=
+  p.notes||"";
+
+ toggleContentField();
+
+}
+
+
+function parseNumberLocal(v){
+
+ let s=
+  normalizeText(v)
+   .replace(/\$/g,"")
+   .replace(/\s/g,"");
+
+ if(!s)return 0;
+
+
+ if(s.includes(",")&&s.includes(".")){
+
+  if(
+   s.lastIndexOf(",")>
+   s.lastIndexOf(".")
+  ){
+
+   s=
+    s.replace(/\./g,"")
+     .replace(",",".");
+   
+  }else{
+
+   s=s.replace(/,/g,"");
+
+  }
+
+ }else if(s.includes(".")){
+
+  s=s.replace(/\./g,"");
+
+ }else if(s.includes(",")){
+
+  s=s.replace(",",".");
+ 
+ }
+
+
+ const n=Number(s);
+
+ return Number.isFinite(n)?n:0;
+
+}
+
+
+function calcularEntradaVenta(){
+
+ const buy=
+  parseNumberLocal(
+   document.getElementById("eBuy").value
+  );
+
+ const gain=
+  parseNumberLocal(
+   document.getElementById("eGain").value
+  );
+
+
+ if(buy<=0){
+
+  document.getElementById("eSale").value="";
+
+  return;
+
+ }
+
+
+ const content=
+  isPackMeasure(
+   document.getElementById("eMeasure").value
+  )
+  ?
+   Math.max(
+    1,
+    parseNumberLocal(
+     document.getElementById("eContent").value
+    )||1
+   )
+  :
+   1;
+
+
+ const sale=
+  content>1
+  ?
+   Math.round(
+    (buy/content)*(1+gain/100)
+   )
+  :
+   Math.round(
+    buy*(1+gain/100)
+   );
+
+
+ document.getElementById("eSale").value=sale;
+
+}
+
+
+function agregarEntradaLista(){
+
+ const code=
+  normalizeText(
+   document.getElementById("eCode").value
+  )
+  ||
+  normalizeText(
+   document.getElementById("eSearch").value
+  );
+
+ const category=
+  normalizeText(
+   document.getElementById("eCat").value
+  );
+
+ const name=
+  normalizeText(
+   document.getElementById("eName").value
+  );
+
+ const brand=
+  normalizeText(
+   document.getElementById("eBrand").value
+  );
+
+ const model=
+  normalizeText(
+   document.getElementById("eModel").value
+  );
+
+ const measure=
+  normalizeText(
+   document.getElementById("eMeasure").value
+  ).toUpperCase();
+
+ const qty=
+  parseNumberLocal(
+   document.getElementById("eQty").value
+  );
+
+ const buy=
+  parseNumberLocal(
+   document.getElementById("eBuy").value
+  );
+
+ const gain=
+  parseNumberLocal(
+   document.getElementById("eGain").value
+  );
+
+ let content=
+  isPackMeasure(measure)
+  ?
+   parseNumberLocal(
+    document.getElementById("eContent").value
+   )
+  :
+   1;
+
+
+ if(!code){
+
+  toast(
+   "Ingrese o escanee el código del producto."
+  );
+
+  return;
+
+ }
+
+
+ if(!name){
+
+  toast(
+   "Seleccione o escriba el producto."
+  );
+
+  return;
+
+ }
+
+
+ if(!measure){
+
+  toast(
+   "Seleccione la medida del producto."
+  );
+
+  return;
+
+ }
+
+
+ if(qty<=0){
+
+  toast(
+   "Ingrese una cantidad válida."
+  );
+
+  return;
+
+ }
+
+
+ if(buy<=0){
+
+  toast(
+   "Ingrese un precio de compra válido."
+  );
+
+  return;
+
+ }
+
+
+ if(
+  isPackMeasure(measure)
+  &&
+  (!Number.isInteger(content)||content<=0)
+ ){
+
+  toast(
+   "El contenido del empaque debe ser un número entero."
+  );
+
+  return;
+
+ }
+
+
+ const saleInput=
+  parseNumberLocal(
+   document.getElementById("eSale").value
+  );
+
+
+ const unitSale=
+  content>1
+  ?
+   Math.round(
+    (buy/content)*(1+gain/100)
+   )
+  :
+   (
+    saleInput>0
+    ?
+     saleInput
+    :
+     Math.round(
+      buy*(1+gain/100)
+     )
+   );
+
+
+ const units=qty*content;
+
+ const total=qty*buy;
+
+
+ const item={
+  code,
+  category,
+  name,
+  brand,
+  model,
+  qty,
+  measure,
+  content,
+  units,
+  buy,
+  sale:unitSale,
+  total,
+  gain,
+  notes:normalizeText(
+   document.getElementById("eNotes").value
+  )
+ };
+
+
+ const answer=confirm(
+  `Producto: ${name}
+Cantidad: ${qty} ${measure}
+Unidades inventario: ${units}
+Precio compra: ${money(buy)}
+Precio venta unidad: ${money(unitSale)}
+Total compra: ${money(total)}
+
+¿Desea agregarlo a la lista?`
+ );
+
+
+ if(!answer)return;
+
+
+ entryCart.push(item);
+
+ document.getElementById("eSale").value=
+  unitSale;
+
+ renderEntryCartWeb();
+
+ toast(
+  "Producto agregado a la lista. Todavía no se ha guardado."
+ );
+
+}
+
+
+function renderEntryCartWeb(){
+
+ const rows=
+  document.getElementById("entryRows");
+
+
+ rows.innerHTML=
+  entryCart.map(
+   (x,i)=>`
+
+    <tr data-entry-index="${i}">
+
+     <td>${escapeHtml(x.code)}</td>
+     <td>${escapeHtml(x.name)}</td>
+     <td>${escapeHtml(x.brand)}</td>
+     <td>${escapeHtml(x.model||"")}</td>
+     <td>${x.qty}</td>
+     <td>${escapeHtml(x.measure)}</td>
+     <td>${x.content}</td>
+     <td>${x.units}</td>
+     <td>${money(x.buy)}</td>
+     <td>${money(x.sale)}</td>
+     <td>${money(x.total)}</td>
+     <td>${escapeHtml(x.category)}</td>
+     <td>${x.gain}%</td>
+     <td>${escapeHtml(x.notes)}</td>
+
+    </tr>
+
+   `
+  ).join("")
+  ||
+  `
+   <tr>
+    <td colspan="14" class="empty">
+     No hay productos en la lista.
+    </td>
+   </tr>
+  `;
+
+
+ document.getElementById("entryCount").textContent=
+  entryCart.length;
+
+ document.getElementById("entryUnits").textContent=
+  entryCart.reduce(
+   (a,x)=>a+x.units,
+   0
+  );
+
+ document.getElementById("entryGrandTotal").textContent=
+  money(
+   entryCart.reduce(
+    (a,x)=>a+x.total,
+    0
+   )
+  );
+
+}
+
+
+function buscarEnListaEntrada(){
+
+ const q=
+  normalizeText(
+   document.getElementById("entrySearchList").value
+  ).toLowerCase();
+
+
+ document
+  .querySelectorAll(
+   "#entryRows tr[data-entry-index]"
+  )
+  .forEach(
+   tr=>{
+
+    const i=
+     Number(
+      tr.dataset.entryIndex
+     );
+
+    const x=entryCart[i];
+
+
+    tr.style.display=
+     (
+      !q
+      ||
+      `${x.code} ${x.name}`
+       .toLowerCase()
+       .includes(q)
+     )
+     ?
+      ""
+     :
+      "none";
+
+   }
+  );
+
+}
+
+
+function eliminarEntradaSeleccionada(){
+
+ const rows=
+  [
+   ...document.querySelectorAll(
+    "#entryRows tr[data-entry-index]"
+   )
+  ]
+  .filter(
+   r=>r.style.display!=="none"
+  );
+
+
+ if(!rows.length){
+
+  toast(
+   "No hay productos en la lista."
+  );
+
+  return;
+
+ }
+
+
+ const i=
+  Number(
+   rows[0].dataset.entryIndex
+  );
+
+ const x=entryCart[i];
+
+
+ if(
+  !confirm(
+   `¿Desea eliminar el producto ${x.name}?`
+  )
+ )return;
+
+
+ entryCart.splice(i,1);
+
+ renderEntryCartWeb();
+
+ toast(
+  "Producto eliminado de la lista."
+ );
+
+}
+
+
+function upsertWebProduct(item){
+
+ let pr=
+  db.products.find(
+   p=>String(p.code)===String(item.code)
+  );
+
+
+ if(pr){
+
+  pr.category=item.category;
+  pr.name=item.name;
+  pr.brand=item.brand;
+  pr.model=item.model||"";
+  pr.measure=inventoryMeasure(item.measure);
+  pr.gain=item.gain;
+  pr.sale=Math.round(item.sale);
+  pr.notes=item.notes;
+  pr.status="ACTIVO";
+
+ }else{
+
+  db.products.push({
+
+   code:item.code,
+   category:item.category,
+   name:item.name,
+   brand:item.brand,
+   model:item.model||"",
+   measure:inventoryMeasure(item.measure),
+   gain:item.gain,
+   sale:Math.round(item.sale),
+   iva:0,
+   min:0,
+   notes:item.notes,
+   status:"ACTIVO"
+
+  });
+
+ }
+
+}
+
+
+function recordWebEntry(item){
+
+ db.entries.push({
+
+  id:nextId(db.entries),
+
+  date:new Date().toISOString().slice(0,10),
+
+  code:item.code,
+
+  name:item.name,
+
+  brand:item.brand,
+
+  model:item.model||"",
+
+  buy:Math.round(item.buy),
+
+  qty:item.qty,
+
+  measure:item.measure,
+
+  total:Math.round(item.total),
+
+  notes:item.notes,
+
+  content:item.content,
+
+  units:item.units,
+
+  status:"ACTIVO",
+
+  /* USUARIO QUE REALIZÓ LA ENTRADA */
+
+  usuarioId:
+    currentUser ? currentUser.id : "",
+
+  usuario:
+    currentUser ? currentUser.username : "",
+
+  usuarioNombre:
+    currentUser ? currentUser.name : ""
+
+});
+
+}
+
+
+function updateWebInventory(item){
+
+ let inv=
+  db.inventory.find(
+   p=>String(p.code)===String(item.code)
+  );
+
+
+ const unitCost=
+  item.buy/item.content;
+
+
+ if(inv){
+
+  const oldQty=
+   Number(inv.qty)||0;
+
+  const oldCost=
+   Number(inv.cost)||0;
+
+  const newQty=
+   oldQty+item.units;
+
+
+  const avg=
+   newQty>0
+   ?
+    Math.round(
+     (
+      (oldQty*oldCost)+
+      (item.units*unitCost)
+     )/newQty
+    )
+   :
+    Math.round(unitCost);
+
+
+  const newSale=
+   Math.round(
+    avg+(avg*item.gain/100)
+   );
+
+
+  inv.qty=newQty;
+
+  inv.name=item.name;
+  inv.brand=item.brand;
+  inv.model=item.model||inv.model||"";
+  inv.category=item.category;
+
+  inv.measure=
+   inventoryMeasure(item.measure);
+
+  inv.cost=avg;
+
+  inv.sale=newSale;
+
+  inv.lastEntry=
+   new Date().toISOString().slice(0,10);
+
+  inv.status=
+   inv.qty===0
+   ?
+    "AGOTADO"
+   :
+    (
+     inv.min>0&&inv.qty<=inv.min
+     ?
+      "STOCK BAJO"
+     :
+      "ACTIVO"
+    );
+
+
+  const pr=
+   db.products.find(
+    p=>String(p.code)===String(item.code)
+   );
+
+
+  if(pr){
+
+   pr.gain=item.gain;
+   pr.sale=newSale;
+   pr.status="ACTIVO";
+
+  }
+
+
+ }else{
+
+  const cost=
+   Math.round(unitCost);
+
+  const sale=
+   Math.round(
+    cost+(cost*item.gain/100)
+   );
+
+
+  db.inventory.push({
+
+   code:item.code,
+   name:item.name,
+   brand:item.brand,
+   model:item.model||"",
+   category:item.category,
+   qty:item.units,
+   measure:inventoryMeasure(item.measure),
+   cost,
+   sale,
+   iva:0,
+   lastEntry:new Date().toISOString().slice(0,10),
+   min:0,
+   status:"ACTIVO"
+
+  });
+
+
+  const pr=
+   db.products.find(
+    p=>String(p.code)===String(item.code)
+   );
+
+
+  if(pr){
+
+   pr.sale=sale;
+   pr.status="ACTIVO";
+
+  }
+
+ }
+
+}
+
+
+function moverEntradasAInventario(){
+
+if(!currentUser){
+  toast("Debes iniciar sesión.");
+  return;
+}
+
+ if(entryCart.length===0){
+
+  toast(
+   "No hay productos en la lista para procesar."
+  );
+
+  return;
+
+ }
+
+
+ if(
+  !confirm(
+   `Se van a registrar ${entryCart.length} producto(s).
+
+La información será enviada a:
+• ENTRADAS
+• PRODUCTOS
+• INVENTARIO
+
+¿Desea continuar?`
+  )
+ )return;
+
+
+ try{
+
+  for(const item of entryCart){
+
+   if(!item.code)
+    throw new Error(
+     "Hay un producto sin código."
+    );
+
+   if(!item.name)
+    throw new Error(
+     "Hay un producto sin nombre."
+    );
+
+   if(item.qty<=0)
+    throw new Error(
+     `La cantidad de ${item.name} no es válida.`
+    );
+
+   if(item.buy<=0)
+    throw new Error(
+     `El precio de compra de ${item.name} no es válido.`
+    );
+
+   upsertWebProduct(item);
+
+   recordWebEntry(item);
+
+   updateWebInventory(item);
+
+  }
+
+  const cantidadEntradasRegistradas = entryCart.length;
+
+entryCart=[];
+
+addAudit(
+  "ENTRADA REGISTRADA",
+  `Se registraron ${cantidadEntradasRegistradas} producto(s) en entradas e inventario.`
+);
+
+  save();
+
+  renderEntryCartWeb();
+
+  clearEntryInputs();
+
+  loadEntryLists();
+
+  document.getElementById("entrySearchList").value="";
+
+  setEntryStatus(
+   "Proceso completado. Entradas, productos e inventario fueron actualizados."
+  );
+
+  toast(
+   "Entrada procesada correctamente."
+  );
+
+
+ }catch(err){
+
+  toast(
+   "Error al procesar: "+err.message
+  );
+
+ }
+
+}
+
+
+function renderEntryHistory(){
+
+ document.getElementById("entryHistoryRows").innerHTML=
+
+  [...db.entries]
+   .reverse()
+   .map(
+    x=>`
+
+     <tr>
+
+      <td>${x.id}</td>
+      <td>${x.date}</td>
+      <td>${escapeHtml(x.code)}</td>
+      <td>${escapeHtml(x.name)}</td>
+      <td>${escapeHtml(x.brand)}</td>
+      <td>${escapeHtml(x.model||"")}</td>
+      <td>${money(x.buy)}</td>
+      <td>${x.qty}</td>
+      <td>${escapeHtml(x.measure)}</td>
+      <td>${money(x.total)}</td>
+      <td>${escapeHtml(x.notes)}</td>
+
+     </tr>
+
+    `
+   )
+   .join("")
+   ||
+   `
+    <tr>
+     <td colspan="11" class="empty">
+      No hay entradas registradas.
+     </td>
+    </tr>
+   `;
+
+}
+
+
+function showEntryHistory(){
+
+ const box=
+  document.getElementById("entryHistory");
+
+ box.style.display=
+  box.style.display==="none"
+  ?
+   "block"
+  :
+   "none";
+
+
+ if(box.style.display==="block")
+  renderEntryHistory();
+
+}
+
+
+function refreshEntryModule(){
+
+ const el=
+  document.getElementById("eFecha");
+
+ if(el)
+  el.value=todayDMY();
+
+ loadEntryLists();
+
+ renderEntryCartWeb();
+
+
+ if(
+  document.getElementById("entryHistory")
+  &&
+  document.getElementById("entryHistory").style.display!=="none"
+ ){
+
+  renderEntryHistory();
+
+ }
+
+}
+
+
+function ensureSaleStorage(){
+
+ if(!Array.isArray(db.salesLines))
+  db.salesLines=[];
+
+ if(!Array.isArray(db.salidas))
+  db.salidas=[];
+
+ if(!Array.isArray(db.clients))
+  db.clients=[];
+
+ if(!Array.isArray(db.sellers))
+  db.sellers=[
+   {
+    id:"1",
+    name:"EDWIN SARMIENTO",
+    status:"ACTIVO"
+   }
+  ];
+
+}
+
+
+function setSelectedSale(p){
+
+ selectedSale=p||null;
+
+ document.getElementById("sInfoName").textContent=
+  p?.name||"—";
+
+ document.getElementById("sInfoCode").textContent=
+  p?.code||"—";
+
+ document.getElementById("sInfoPrice").textContent=
+  money(p?.sale||0);
+
+ document.getElementById("sInfoStock").textContent=
+  p?String(p.qty):"0";
+
+ document.getElementById("sInfoBrand").textContent=
+  p?.brand||"—";
+
+ document.getElementById("sInfoCat").textContent=
+  p?.category||"—";
+
+ document.getElementById("sInfoModel").textContent=
+  p?.model||"—";
+
+ document.getElementById("sInfoMeasure").textContent=
+  p?.measure||"—";
+
+
+ document.getElementById("saleProduct").innerHTML=
+
+  p
+  ?
+   `<b>${escapeHtml(p.name)}</b>
+    <div class="muted">
+     ${escapeHtml(p.code)}
+     ·
+     ${escapeHtml(p.brand||"")}
+     · Stock disponible:
+     ${p.qty}
+    </div>`
+  :
+   `Producto no seleccionado.`;
+
+}
+
+
+function clearSelectedSale(){
+
+ setSelectedSale(null);
+
+ document.getElementById("sSearch").value="";
+
+ document.getElementById("sConsult").value="";
+
+ document.getElementById("sQty").value=1;
+
+}
+
+
+function consultSaleProduct(){
+
+ const q=
+  document.getElementById("sConsult").value.trim();
+
+ if(!q)return;
+
+
+ const p=product(q);
+
+
+ if(!p){
+
+  setSelectedSale(null);
+
+  toast(
+   "No se encontró el producto."
+  );
+
+  return;
+
+ }
+
+
+ setSelectedSale(p);
+
+ document.getElementById("sQty").value=1;
+
+}
+
+
+function scanOrAddSale(){
+
+ const q=
+  document.getElementById("sSearch").value.trim();
+
+ if(!q)return;
+
+
+ const p=product(q);
+
+
+ if(!p){
+
+  setSelectedSale(null);
+
+  toast(
+   "Producto no encontrado."
+  );
+
+  return;
+
+ }
+
+
+ setSelectedSale(p);
+
+ addSaleLine(1,true);
+
+}
+
+
+function getSaleCartQty(code){
+
+ const found=
+  cart.find(
+   x=>String(x.code)===String(code)
+  );
+
+ return found
+  ?
+   Number(found.qty)||0
+  :
+   0;
+
+}
+
+
+function saleQtyValue(){
+
+ const v=
+  Number(
+   document.getElementById("sQty").value
+  );
+
+ return Number.isFinite(v)&&v>0
+  ?
+   Math.floor(v)
+  :
+   1;
+
+}
+
+
+function saleQtyMinus(){
+
+ document.getElementById("sQty").value=
+  Math.max(
+   1,
+   saleQtyValue()-1
+  );
+
+}
+
+
+function saleQtyPlus(){
+
+ if(!selectedSale){
+
+  toast(
+   "Primero consulte o escanee un producto."
+  );
+
+  return;
+
+ }
+
+
+ const stock=
+  Number(selectedSale.qty)||0;
+
+ const current=
+  getSaleCartQty(
+   selectedSale.code
+  );
+
+ const editing=
+  cart.find(
+   x=>
+    String(x.code)===String(selectedSale.code)
+    &&
+    x._editing
+  );
+
+ const available=
+  editing
+  ?
+   stock
+  :
+   stock-current;
+
+ const next=
+  saleQtyValue()+1;
+
+
+ if(next>available){
+
+  toast(
+   `No puedes superar el stock disponible (${stock}).`
+  );
+
+  return;
+
+ }
+
+
+ document.getElementById("sQty").value=next;
+
+}
+
+
+function addSaleLine(forceQty=null){
+
+ if(!selectedSale){
+
+  toast(
+   "Primero consulte o escanee un producto."
+  );
+
+  return;
+
+ }
+
+
+ const p=selectedSale;
+
+ const stock=
+  Number(p.qty)||0;
+
+ let qty=
+  forceQty!==null
+  ?
+   Number(forceQty)
+  :
+   saleQtyValue();
+
+
+ if(!Number.isFinite(qty)||qty<=0){
+
+  toast(
+   "La cantidad debe ser mayor que cero."
+  );
+
+  return;
+
+ }
+
+
+ qty=Math.floor(qty);
+
+
+ const idx=
+  cart.findIndex(
+   x=>String(x.code)===String(p.code)
+  );
+
+
+ if(idx>=0){
+
+  const current=
+   Number(cart[idx].qty)||0;
+
+
+  if(cart[idx]._editing){
+
+   if(qty>stock){
+
+    toast(
+     `No puedes superar el stock disponible (${stock}).`
+    );
+
+    return;
+
+   }
+
+   cart[idx].qty=qty;
+
+   delete cart[idx]._editing;
+
+
+  }else{
+
+   const next=
+    current+qty;
+
+
+   if(next>stock){
+
+    toast(
+     `No hay suficiente stock. Disponible: ${stock}.`
+    );
+
+    return;
+
+   }
+
+
+   cart[idx].qty=next;
+
+  }
+
+
+ }else{
+
+  if(qty>stock){
+
+   toast(
+    `No hay suficiente stock. Disponible: ${stock}.`
+   );
+
+   return;
+
+  }
+
+
+  cart.push({
+
+   code:p.code,
+   name:p.name,
+   brand:p.brand,
+   model:p.model,
+   category:p.category,
+   qty,
+   measure:p.measure,
+   price:Number(p.sale)||0,
+   iva:Number(p.iva)||0,
+   _editing:false
+
+  });
+
+ }
+
+
+ renderCartExact();
+
+ updateSaleTotals();
+
+ document.getElementById("sQty").value=1;
+
+ document.getElementById("sSearch").value="";
+
+
+ if(forceQty===null)
+  document.getElementById("sSearch").focus();
+
+
+ selectedSale=null;
+
+ setSelectedSale(null);
+
+}
+
+
+function editSaleLine(index){
+
+ cart.forEach(
+  x=>delete x._editing
+ );
+
+
+ const item=cart[index];
+
+ if(!item)return;
+
+
+ item._editing=true;
+
+
+ const p=product(item.code);
+
+ if(p)
+  setSelectedSale(p);
+
+
+ document.getElementById("sQty").value=
+  item.qty;
+
+ renderCartExact();
+
+ document.getElementById("sQty").focus();
+
+ document.getElementById("sQty").select();
+
+}
+
+
+function removeSelectedSaleLine(){
+
+ const idx=
+  cart.findIndex(
+   x=>x._editing
+  );
+
+
+ if(idx<0){
+
+  toast(
+   "Selecciona una línea del carrito."
+  );
+
+  return;
+
+ }
+
+
+ cart.splice(idx,1);
+
+ clearSelectedSale();
+
+ renderCartExact();
+
+ updateSaleTotals();
+
+ toast(
+  "Producto eliminado del carrito."
+ );
+
+}
+
+
+function renderCartExact(){
+
+ const q=
+  (
+   document.getElementById("saleCartSearch")?.value||""
+  )
+  .toLowerCase()
+  .trim();
+
+
+ document.getElementById("cartRows").innerHTML=
+
+  cart.map(
+   (x,i)=>{
+
+    if(
+     q
+     &&
+     !`${x.code} ${x.name} ${x.brand}`
+      .toLowerCase()
+      .includes(q)
+    ){
+
+     return "";
+
+    }
+
+
+    const rowTotal=
+     Number(x.qty)*Number(x.price);
+
+
+    return `
+
+     <tr
+      class="${x._editing?'cart-selected':''}"
+      onclick="editSaleLine(${i})">
+
+      <td>${escapeHtml(x.code)}</td>
+
+      <td>${escapeHtml(x.name)}</td>
+
+      <td>${escapeHtml(x.brand||"")}</td>
+
+      <td>${x.qty}</td>
+
+      <td>${escapeHtml(x.measure||"")}</td>
+
+      <td>${money(x.price)}</td>
+
+      <td>$ 0</td>
+
+      <td>${x.iva||0}%</td>
+
+      <td>
+       ${money(
+        rowTotal+
+        (rowTotal*(x.iva||0)/100)
+       )}
+      </td>
+
+     </tr>
+
+    `;
+
+   }
+  )
+  .join("")
+  ||
+  `
+   <tr>
+    <td colspan="9" class="empty">
+     No hay productos en el carrito.
+    </td>
+   </tr>
+  `;
+
+}
+
+
+function calculateSaleTotals(){
+
+ const subtotal=
+  cart.reduce(
+   (s,x)=>
+    s+
+    (Number(x.qty)||0)*
+    (Number(x.price)||0),
+   0
+  );
+
+
+ const iva=
+  cart.reduce(
+   (s,x)=>{
+
+    const base=
+     (Number(x.qty)||0)*
+     (Number(x.price)||0);
+
+    return s+
+     base*
+     (Number(x.iva)||0)/
+     100;
+
+   },
+   0
+  );
+
+
+ const percent=
+  Math.min(
+   100,
+   Math.max(
+    0,
+    Number(
+     document.getElementById("discount").value
+    )||0
+   )
+  );
+
+
+ const beforeDiscount=
+  subtotal+iva;
+
+ const discount=
+  beforeDiscount*percent/100;
+
+ const total=
+  Math.max(
+   0,
+   beforeDiscount-discount
+  );
+
+
+ return{
+  subtotal,
+  iva,
+  percent,
+  discount,
+  total
+ };
+
+}
+
+
+function updateSaleTotals(){
+
+ const t=calculateSaleTotals();
+
+
+ document.getElementById("sumSub").textContent=
+  money(t.subtotal);
+
+ document.getElementById("sumDisc").textContent=
+  money(t.discount);
+
+ document.getElementById("sumIva").textContent=
+  money(t.iva);
+
+ document.getElementById("sumTotal").textContent=
+  money(t.total);
+
+
+ const received=
+  num(
+   document.getElementById("received").value
+  );
+
+
+ document.getElementById("change").textContent=
+  money(
+   Math.max(
+    0,
+    received-t.total
+   )
+  );
+
+}
+
+
+function formatReceived(){
+
+ const payment=
+  document.getElementById("payment").value;
+
+ //==================================================
+ // PAGO MIXTO
+ //==================================================
+ if(payment==="MIXTO"){
+
+  const efectivo=
+   num(
+    document.getElementById("cashReceived").value
+   );
+
+  const transferencia=
+   num(
+    document.getElementById("transferReceived").value
+   );
+
+  document.getElementById("cashReceived").value=
+   String(Math.round(efectivo));
+
+  document.getElementById("transferReceived").value=
+   String(Math.round(transferencia));
+
+  actualizarPagoMixto();
+
+  return;
+ }
+
+ //==================================================
+ // EFECTIVO / TRANSFERENCIA / OTROS
+ //==================================================
+ const v=
+  num(
+   document.getElementById("received").value
+  );
+
+ document.getElementById("received").value=
+  String(
+   Math.round(v)
+  );
+
+ updateSaleTotals();
+
+}
+function actualizarPagoMixto(){
+
+ const efectivo=
+  num(
+   document.getElementById("cashReceived").value
+  );
+
+ const transferencia=
+  num(
+   document.getElementById("transferReceived").value
+  );
+
+ const recibido=
+  efectivo+transferencia;
+
+ const total=
+  calculateSaleTotals().total;
+
+ const faltante=
+  Math.max(0,total-recibido);
+
+ document.getElementById("mixedReceived").textContent=
+  money(recibido);
+
+ document.getElementById("mixedMissing").textContent=
+  money(faltante);
+
+ // Guardamos el total recibido también
+ // en el campo que ya utilizaba el sistema
+ document.getElementById("received").value=
+  String(Math.round(recibido));
+
+ updateSaleTotals();
+
+}
+
+function generateSaleId(){
+
+ ensureSaleStorage();
+
+ const ids=
+  [
+   ...db.salidas,
+   ...db.salesLines
+  ]
+  .map(
+   x=>Number(x.id)||0
+  );
+
+ return String(
+  Math.max(0,...ids)+1
+ );
+
+}
+
+
+function validateSaleBeforeSave(total, received, payment){
+
+  //=========================================================
+  // DEBE EXISTIR AL MENOS UN PRODUCTO
+  //=========================================================
+  if(cart.length===0){
+    toast("No hay productos en el carrito.");
+    return false;
+  }
+
+  //=========================================================
+  // VENDEDOR
+  //=========================================================
+  if(!document.getElementById("seller").value){
+    toast("Selecciona el vendedor.");
+    return false;
+  }
+
+  //=========================================================
+  // FORMA DE PAGO
+  //=========================================================
+  if(!payment){
+    toast("Selecciona la forma de pago.");
+    return false;
+  }
+
+  //=========================================================
+  // VALIDAR STOCK
+  //=========================================================
+  for(const x of cart){
+
+    const inv=product(x.code);
+
+    if(!inv){
+      toast(`El producto ${x.name} no existe en el inventario.`);
+      return false;
+    }
+
+    if(Number(x.qty)>Number(inv.qty)){
+      toast(`Stock insuficiente para ${x.name}. Disponible: ${inv.qty}.`);
+      return false;
+    }
+  }
+
+  //=========================================================
+  // VALIDAR DINERO RECIBIDO
+  //=========================================================
+  if(Number(received) < Number(total)){
+
+    const faltante=Number(total)-Number(received);
+
+    toast(
+      `Venta no registrada. Falta recibir ${money(faltante)}.`
+    );
+
+    return false;
+  }
+
+  //=========================================================
+  // TODO CORRECTO
+  //=========================================================
+  return true;
+}
+
+function finishSaleExact(){
+
+  if(!currentUser){
+  toast("Debes iniciar sesión.");
+  return;
+}
+  ensureSaleStorage();
+
+  //=========================================================
+  // DATOS DE LA VENTA
+  //=========================================================
+  const payment=
+    document.getElementById("payment").value;
+
+  const seller=
+    document.getElementById("seller").value;
+
+ const clientId=
+  document.getElementById("client").value || "";
+
+const selectedClient=
+  db.clients.find(
+    x=>String(x.id)===String(clientId)
+  );
+
+const client=
+  selectedClient
+   ? selectedClient.name
+   : "CONSUMIDOR FINAL";
+
+  const t=
+    calculateSaleTotals();
+
+
+  //=========================================================
+  // DETERMINAR DINERO RECIBIDO
+  //=========================================================
+  let received=0;
+
+
+  if(payment==="MIXTO"){
+
+    const efectivo=
+      num(
+        document.getElementById("cashReceived").value
+      );
+
+    const transferencia=
+      num(
+        document.getElementById("transferReceived").value
+      );
+
+    received=
+      efectivo+
+      transferencia;
+
+  }else{
+
+    received=
+      num(
+        document.getElementById("received").value
+      );
+
+  }
+
+
+  received=Math.round(received);
+
+
+  //=========================================================
+  // VALIDAR DINERO RECIBIDO
+  //=========================================================
+  if(received<t.total){
+
+    const faltante=
+      t.total-received;
+
+    toast(
+      `Venta NO registrada. Falta recibir ${money(faltante)}.`
+    );
+
+    return;
+
+  }
+
+
+  const change=
+    Math.max(
+      0,
+      received-t.total
+    );
+
+
+  //=========================================================
+  // VALIDACIONES GENERALES
+  //=========================================================
+  if(
+    !validateSaleBeforeSave(
+      t.total,
+      received,
+      payment
+    )
+  ){
+
+    return;
+
+  }
+
+
+  //=========================================================
+  // CONFIRMACIÓN
+  //=========================================================
+  if(
+    !confirm(
+      `¿Deseas generar esta venta?\n\n`+
+      `Total: ${money(t.total)}\n`+
+      `Recibido: ${money(received)}\n`+
+      `Cambio: ${money(change)}`
+    )
+  ){
+
+    return;
+
+  }
+
+
+  //=========================================================
+  // ID Y DATOS GENERALES
+  //=========================================================
+  const id=
+    generateSaleId();
+
+  const fecha=
+    today();
+
+  const hora=
+    new Date().toLocaleTimeString(
+      "es-CO",
+      {
+        hour12:false
+      }
+    );
+
+  const subtotalCart=
+    t.subtotal;
+
+
+  //=========================================================
+  // REGISTRAR CADA PRODUCTO
+  //=========================================================
+  for(const x of cart){
+
+    const inv=
+      db.inventory.find(
+        p=>
+          String(p.code)===
+          String(x.code)
+      );
+
+
+    if(!inv){
+
+      toast(
+        `No se encontró el inventario de ${x.name}.`
+      );
+
+      return;
+
+    }
+
+
+    const subtotal=
+      Number(x.qty)*
+      Number(x.price);
+
+
+    const descLine=
+      subtotalCart>0
+      ?
+        (
+          subtotal/
+          subtotalCart
+        )*
+        (
+          t.subtotal*
+          t.percent/
+          100
+        )
+      :
+        0;
+
+
+    const baseAfterDiscount=
+      Math.max(
+        0,
+        subtotal-descLine
+      );
+
+
+    const ivaValue=
+      baseAfterDiscount*
+      (Number(x.iva)||0)/
+      100;
+
+
+    const lineTotal=
+      baseAfterDiscount+
+      ivaValue;
+
+
+    //=======================================================
+    // VENTAS
+    //=======================================================
+    db.salesLines.push({
+
+      id,
+      date:fecha,
+      time:hora,
+
+      code:x.code,
+      name:x.name,
+      brand:x.brand,
+      model:x.model||"",
+      category:x.category||"",
+
+      qty:Number(x.qty),
+      measure:x.measure||"",
+
+      price:Number(x.price),
+
+      subtotal,
+      discount:descLine,
+      iva:ivaValue,
+      total:lineTotal,
+
+     clientId,
+     client,
+      payment,
+      seller,
+
+      received,
+      change,
+
+      status:"VENDIDO",
+
+    
+usuarioId:
+  currentUser ? currentUser.id : "",
+
+usuario:
+  currentUser ? currentUser.username : "",
+
+usuarioNombre:
+  currentUser ? currentUser.name : ""
+
+    });
+
+
+    //=======================================================
+    // SALIDAS GENERADAS POR LA VENTA
+    //=======================================================
+    db.salidas.push({
+
+      id,
+      date:fecha,
+      time:hora,
+
+      code:x.code,
+      product:x.name,
+      brand:x.brand,
+      model:x.model||"",
+      category:x.category||"",
+
+      qty:Number(x.qty),
+      measure:x.measure||"",
+
+      unitPrice:Number(x.price),
+
+      subtotal,
+      discount:descLine,
+      iva:ivaValue,
+      total:lineTotal,
+
+      clientId,
+  client,
+      payment,
+      seller,
+
+      received,
+      change,
+
+      motivo:"VENTA",
+
+      status:"VENDIDO",
+
+usuarioId:
+  currentUser ? currentUser.id : "",
+
+usuario:
+  currentUser ? currentUser.username : "",
+
+usuarioNombre:
+  currentUser ? currentUser.name : ""
+
+    });
+
+
+    //=======================================================
+    // DESCONTAR INVENTARIO
+    //=======================================================
+    inv.qty=
+      Number(inv.qty)-
+      Number(x.qty);
+
+
+    inv.status=
+      inv.qty===0
+      ?
+        "AGOTADO"
+      :
+        (
+          inv.min>0 &&
+          inv.qty<=inv.min
+          ?
+            "STOCK BAJO"
+          :
+            "DISPONIBLE"
+        );
+
+  }
+  
+addAudit(
+  "VENTA REGISTRADA",
+  `Venta ${id} por ${money(t.total)} · Cliente: ${client} · Pago: ${payment}`
+);
+
+  //=========================================================
+  // GUARDAR
+  //=========================================================
+  save();
+
+
+  //=========================================================
+  // LIMPIAR VENTA
+  //=========================================================
+  cart=[];
+
+  renderCartExact();
+
+  updateSaleTotals();
+
+
+  document.getElementById("received").value="";
+
+
+  if(
+    document.getElementById("cashReceived")
+  )
+    document.getElementById("cashReceived").value="";
+
+
+  if(
+    document.getElementById("transferReceived")
+  )
+    document.getElementById("transferReceived").value="";
+
+
+  actualizarPagoMixto();
+
+
+  //=========================================================
+  // ACTUALIZAR HISTORIAL DE SALIDAS
+  //=========================================================
+  renderOutHistory();
+
+
+  //=========================================================
+  // MENSAJE
+  //=========================================================
+  toast(
+    `Venta registrada correctamente. Total ${money(t.total)}`
+  );
+
+}
+
+function clearSaleOnly(showToast=true){
+
+ cart=[];
+
+ selectedSale=null;
+
+ document.getElementById("sQty").value=1;
+
+ document.getElementById("discount").value=0;
+
+ document.getElementById("received").value=0;
+
+ document.getElementById("payment").value="";
+
+ document.getElementById("client").value="";
+
+ document.getElementById("seller").value="";
+
+ setSelectedSale(null);
+
+ renderCartExact();
+
+ updateSaleTotals();
+
+ if(showToast)
+  toast("Venta limpiada.");
+
+}
+
+
+function cancelSale(){
+
+ if(!cart.length){
+
+  clearSaleOnly();
+
+  return;
+
+ }
+
+
+ if(
+  !confirm(
+   "¿Deseas cancelar la venta actual?\n\nSe eliminarán los productos del carrito."
+  )
+ )return;
+
+
+ clearSaleOnly();
+
+ toast(
+  "Venta cancelada."
+ );
+
+}
+
+
+function buildTicket(
+ id,
+ items,
+ t,
+ client,
+ seller,
+ payment,
+ received,
+ change
+){
+
+ const html=
+
+ `
+ <div style="
+  font-family:Arial,sans-serif;
+  font-size:12px">
+
+  <h3 style="
+   text-align:center;
+   margin:0 0 4px">
+
+   INVENTARIO Y VENTAS
+
+  </h3>
+
+  <div style="text-align:center">
+   Venta #${id}
+  </div>
+
+  <div>
+   Fecha:
+   ${new Date().toLocaleDateString("es-CO")}
+   ${new Date().toLocaleTimeString("es-CO",{hour12:false})}
+  </div>
+
+  <hr>
+
+  ${items.map(
+   x=>`
+
+    <div>
+
+     <b>${escapeHtml(x.name)}</b><br>
+
+     ${x.qty}
+     x
+     ${money(x.price)}
+     =
+     ${money(x.total)}
+
+    </div>
+
+    <hr>
+
+   `
+  ).join("")}
+
+  <div>
+   Subtotal: ${money(t.subtotal)}
+  </div>
+
+  <div>
+   Descuento: ${money(t.discount)}
+  </div>
+
+  <div>
+   IVA: ${money(t.iva)}
+  </div>
+
+  <div>
+   <b>TOTAL: ${money(t.total)}</b>
+  </div>
+
+  <div>
+   Cliente:
+   ${escapeHtml(client||"Consumidor final")}
+  </div>
+
+  <div>
+   Vendedor:
+   ${escapeHtml(seller)}
+  </div>
+
+  <div>
+   Pago:
+   ${escapeHtml(payment)}
+  </div>
+
+  <div>
+   Recibido:
+   ${money(received)}
+  </div>
+
+  <div>
+   Cambio:
+   ${money(change)}
+  </div>
+
+  <hr>
+
+  <div style="text-align:center">
+   Gracias por su compra
+  </div>
+
+ </div>
+ `;
+
+
+ document.getElementById("ticketPrint").innerHTML=
+  html;
+
+}
+
+function printTicket(){
+
+  if(!cart.length){
+
+    toast(
+      "No hay productos en el carrito para imprimir."
+    );
+
+    return;
+
+  }
+
+
+  const t=
+    calculateSaleTotals();
+
+
+  //=========================================================
+  // CLIENTE SELECCIONADO
+  //=========================================================
+
+  const clientId=
+    document.getElementById("client").value || "";
+
+
+  const selectedClient=
+    db.clients.find(
+      x=>String(x.id)===String(clientId)
+    );
+
+
+  const client=
+    selectedClient
+      ? selectedClient.name
+      : "CONSUMIDOR FINAL";
+
+
+  //=========================================================
+  // VENDEDOR
+  //=========================================================
+
+  const seller=
+    document.getElementById("seller").value || "";
+
+
+  //=========================================================
+  // FORMA DE PAGO
+  //=========================================================
+
+  const payment=
+    document.getElementById("payment").value || "";
+
+
+  //=========================================================
+  // DINERO RECIBIDO
+  //=========================================================
+
+  let received=0;
+
+
+  if(payment==="MIXTO"){
+
+    received=
+      num(
+        document.getElementById("cashReceived").value
+      )
+      +
+      num(
+        document.getElementById("transferReceived").value
+      );
+
+  }else{
+
+    received=
+      num(
+        document.getElementById("received").value
+      );
+
+  }
+
+
+  received=
+    Math.round(received);
+
+
+  //=========================================================
+  // CAMBIO
+  //=========================================================
+
+  const change=
+    Math.max(
+      0,
+      received-t.total
+    );
+
+
+  //=========================================================
+  // GENERAR TIQUETE
+  //=========================================================
+
+  buildTicket(
+    "PREVISUALIZACIÓN",
+    cart,
+    t,
+    client,
+    seller,
+    payment,
+    received,
+    change
+  );
+
+
+  window.print();
+
+}
+
+function refreshSaleModule(){
+
+ ensureSaleStorage();
+
+ document.getElementById("sFecha").value=
+  new Date().toLocaleDateString("es-CO");
+
+ document.getElementById("sHora").value=
+  new Date().toLocaleTimeString(
+   "es-CO",
+   {hour12:false}
+  );
+
+ renderCartExact();
+
+ updateSaleTotals();
+
+ setSelectedSale(null);
+
+}
+
+
+let outCart=[];
+let selectedOut=null;
+
+
+function ensureOutStorage(){
+
+ if(!Array.isArray(db.outgoingLines))
+  db.outgoingLines=[];
+
+}
+
+
+function confirmarAutorizacionAdminSalida(){
+
+ const username=
+  document
+   .getElementById("adminAuthUser")
+   .value
+   .trim();
+
+
+ const password=
+  document
+   .getElementById("adminAuthPassword")
+   .value;
+
+
+ if(!username){
+
+  toast(
+   "Ingrese el usuario administrador."
+  );
+
+  document
+   .getElementById("adminAuthUser")
+   .focus();
+
+  return;
+
+ }
+
+
+ if(!password){
+
+  toast(
+   "Ingrese la contraseña del administrador."
+  );
+
+  document
+   .getElementById("adminAuthPassword")
+   .focus();
+
+  return;
+
+ }
+
+
+ const user=
+  findUser(username);
+
+
+ if(!user){
+
+  toast(
+   "El usuario administrador no existe."
+  );
+
+  return;
+
+ }
+
+
+ if(
+  String(user.password)!==
+  String(password)
+ ){
+
+  toast(
+   "Contraseña de administrador incorrecta."
+  );
+
+  document
+   .getElementById("adminAuthPassword")
+   .select();
+
+  return;
+
+ }
+
+
+ if(user.status!=="ACTIVO"){
+
+  toast(
+   "El usuario administrador está inactivo."
+  );
+
+  return;
+
+ }
+
+
+ if(user.role!=="ADMINISTRADOR"){
+
+  toast(
+   "El usuario ingresado no tiene permisos de administrador."
+  );
+
+  return;
+
+ }
+
+
+ const autorizado={
+
+  id:user.id,
+
+  username:user.username,
+
+  name:user.name
+
+ };
+
+
+ const modal=
+  document.getElementById(
+   "adminAuthModal"
+  );
+
+
+ modal.style.display="none";
+
+
+ if(adminAuthResolver){
+
+  const resolve=
+   adminAuthResolver;
+
+  adminAuthResolver=null;
+
+  resolve(autorizado);
+
+ }
+
+}
+
+
+function cancelarAutorizacionAdminSalida(){
+
+ const modal=
+  document.getElementById(
+   "adminAuthModal"
+  );
+
+
+ modal.style.display="none";
+
+
+ if(adminAuthResolver){
+
+  const resolve=
+   adminAuthResolver;
+
+  adminAuthResolver=null;
+
+  resolve(null);
+
+ }
+
+}
+
+function searchOutProduct(){
+
+ const q=
+  document.getElementById("outSearch").value.trim();
+
+
+ if(!q){
+
+  toast(
+   "Escribe o escanea un código."
+  );
+
+  return;
+
+ }
+
+
+ const p=product(q);
+
+
+ if(!p){
+
+  selectedOut=null;
+
+  document.getElementById("outProduct").innerHTML=
+   `<div class="muted">
+     Producto no encontrado.
+   </div>`;
+
+  document.getElementById("outCode").value="";
+  document.getElementById("outName").value="";
+  document.getElementById("outBrand").value="";
+  document.getElementById("outStock").value="";
+
+  return;
+
+ }
+
+
+ selectedOut=p;
+
+
+ document.getElementById("outProduct").innerHTML=
+
+  `<b>${escapeHtml(p.name)}</b>
+   <div class="muted">
+    ${escapeHtml(p.code)}
+    ·
+    ${escapeHtml(p.brand||"")}
+    · Stock disponible:
+    ${p.qty}
+   </div>`;
+
+
+ document.getElementById("outCode").value=
+  p.code;
+
+ document.getElementById("outName").value=
+  p.name;
+
+ document.getElementById("outBrand").value=
+  p.brand||"";
+
+ document.getElementById("outStock").value=
+  p.qty;
+
+ document.getElementById("outQty").value=1;
+
+}
+
+
+function addOutLine(){
+
+ ensureOutStorage();
+
+
+ if(!selectedOut){
+
+  const code=
+   document.getElementById("outCode").value.trim();
+
+  selectedOut=product(code);
+
+ }
+
+
+ if(!selectedOut){
+
+  toast(
+   "Primero busca un producto."
+  );
+
+  return;
+
+ }
+
+
+ const qty=
+  Math.max(
+   1,
+   Math.floor(
+    num(
+     document.getElementById("outQty").value
+    )
+   )
+  );
+
+
+ const reserved=
+  outCart
+   .filter(
+    x=>String(x.code)===String(selectedOut.code)
+   )
+   .reduce(
+    (s,x)=>s+Number(x.qty||0),
+    0
+   );
+
+
+ if(
+  qty+reserved>
+  Number(selectedOut.qty||0)
+ ){
+
+  toast(
+   `Stock insuficiente. Disponible: ${selectedOut.qty-reserved}.`
+  );
+
+  return;
+
+ }
+
+
+ /*
+  * RESPONSABLE
+  *
+  * Si el usuario escribe un responsable,
+  * usamos ese nombre.
+  *
+  * Si lo deja vacío,
+  * usamos el usuario que inició sesión.
+  */
+
+ const responsableIngresado=
+  document
+   .getElementById("outResponsible")
+   .value
+   .trim();
+
+
+ const responsable=
+  responsableIngresado ||
+  (
+   currentUser
+    ?
+     currentUser.name
+    :
+     "—"
+  );
+
+
+ outCart.push({
+
+  code:selectedOut.code,
+
+  name:selectedOut.name,
+
+  brand:selectedOut.brand||"",
+
+  qty,
+
+  reason:
+   document.getElementById("outReason").value,
+
+  responsible,
+
+  note:
+   document
+    .getElementById("outNote")
+    .value
+    .trim()
+
+ });
+
+
+ renderOutCart();
+
+ clearOutProductOnly();
+
+}
+
+function clearOutProductOnly(){
+
+ selectedOut=null;
+
+ document.getElementById("outSearch").value="";
+
+ document.getElementById("outCode").value="";
+
+ document.getElementById("outName").value="";
+
+ document.getElementById("outBrand").value="";
+
+ document.getElementById("outStock").value="";
+
+ document.getElementById("outQty").value=1;
+
+ document.getElementById("outProduct").innerHTML=
+  "Busca un producto para consultar su existencia.";
+
+}
+
+
+function clearOutForm(){
+
+ outCart=[];
+
+ clearOutProductOnly();
+
+ document.getElementById("outReason").value=
+  "CONSUMO INTERNO";
+
+ document.getElementById("outResponsible").value="";
+
+ document.getElementById("outNote").value="";
+
+ renderOutCart();
+
+ toast(
+  "Salida limpiada."
+ );
+
+}
+
+
+function removeOutLine(i){
+
+ outCart.splice(i,1);
+
+ renderOutCart();
+
+}
+
+
+function renderOutCart(){
+
+ document.getElementById("outRows").innerHTML=
+
+  outCart.map(
+   (x,i)=>`
+
+    <tr>
+
+     <td>${escapeHtml(x.code)}</td>
+
+     <td>${escapeHtml(x.name)}</td>
+
+     <td>${x.qty}</td>
+
+     <td>${escapeHtml(x.reason)}</td>
+
+     <td>${escapeHtml(x.responsible||"—")}</td>
+
+     <td>${escapeHtml(x.note||"—")}</td>
+
+     <td>
+
+      <button
+       class="btn small danger"
+       onclick="removeOutLine(${i})">
+
+       Quitar
+
+      </button>
+
+     </td>
+
+    </tr>
+
+   `
+  ).join("")
+  ||
+  `
+   <tr>
+    <td colspan="7" class="empty">
+     No hay salidas pendientes.
+    </td>
+   </tr>
+  `;
+
+
+ document.getElementById("outCount").textContent=
+  outCart.length;
+
+ document.getElementById("outQtyTotal").textContent=
+  outCart.reduce(
+   (s,x)=>s+x.qty,
+   0
+  );
+
+}
+
+
+async function confirmOut(){
+
+ ensureOutStorage();
+
+
+ if(!currentUser){
+
+  toast("Debes iniciar sesión.");
+
+  return;
+
+ }
+
+
+ if(!outCart.length){
+
+  toast("No hay salidas pendientes.");
+
+  return;
+
+ }
+
+
+ /* =====================================================
+    VERIFICAR STOCK ANTES DE CONTINUAR
+    ===================================================== */
+
+ for(const x of outCart){
+
+  const inv=
+   db.inventory.find(
+    p=>String(p.code)===String(x.code)
+   );
+
+
+  const reservado=
+   outCart
+    .filter(
+     y=>String(y.code)===String(x.code)
+    )
+    .reduce(
+     (s,y)=>s+Number(y.qty||0),
+     0
+    );
+
+
+  if(!inv ||
+     reservado>Number(inv.qty||0)){
+
+   toast(
+    `Stock insuficiente para ${x.name}.`
+   );
+
+   return;
+
+  }
+
+ }
+
+
+ /* =====================================================
+    DETECTAR DAÑO / PÉRDIDA
+    ===================================================== */
+
+ let salidaEspecial=false;
+
+
+ for(const x of outCart){
+
+  const motivo=
+   String(x.reason||"")
+    .trim()
+    .toUpperCase()
+    .normalize("NFD")
+    .replace(
+     /[\u0300-\u036f]/g,
+     ""
+    );
+
+
+  if(
+   motivo==="DANO" ||
+   motivo==="PERDIDA"
+  ){
+
+   salidaEspecial=true;
+
+   break;
+
+  }
+
+ }
+
+
+ /* =====================================================
+    AUTORIZACIÓN ADMINISTRADOR
+    ===================================================== */
+
+ let autorizadoPor=null;
+
+
+ if(
+  salidaEspecial &&
+  !isAdmin()
+ ){
+
+  autorizadoPor=
+   await solicitarAutorizacionAdminSalida();
+
+
+  if(!autorizadoPor){
+
+   toast(
+    "Salida cancelada. Se requiere autorización de un administrador."
+   );
+
+   return;
+
+  }
+
+ }
+
+
+ /* =====================================================
+    CONFIRMACIÓN FINAL
+    ===================================================== */
+
+ let mensaje=
+  `¿Registrar ${outCart.length} salida(s) de inventario?`;
+
+
+ if(salidaEspecial){
+
+  mensaje+=
+   "\n\n⚠️ ESTA ES UNA SALIDA ESPECIAL.";
+
+
+  if(isAdmin()){
+
+   mensaje+=
+    "\nEl administrador actual realizará y autorizará la salida.";
+
+  }else{
+
+   mensaje+=
+    `\nAutorizada por: ${autorizadoPor.name}`;
+
+  }
+
+ }
+
+
+ if(!confirm(mensaje)){
+
+  return;
+
+ }
+
+
+ /* =====================================================
+    DATOS DE LA SALIDA
+    ===================================================== */
+
+ const fecha=today();
+
+ const hora=
+  new Date().toLocaleTimeString(
+   "es-CO",
+   {
+    hour12:false
+   }
+  );
+
+
+ const next=
+  nextId(db.outgoingLines);
+
+
+ /* =====================================================
+    REGISTRAR CADA SALIDA
+    ===================================================== */
+
+ outCart.forEach(
+  (x,idx)=>{
+
+   const inv=
+    db.inventory.find(
+     p=>String(p.code)===String(x.code)
+    );
+
+
+   if(!inv)return;
+
+
+   /* DESCONTAR INVENTARIO */
+
+   inv.qty=
+    Math.max(
+     0,
+     Number(inv.qty||0)-
+     Number(x.qty||0)
+    );
+
+
+   /* ACTUALIZAR ESTADO */
+
+   inv.status=
+    inv.qty===0
+     ?
+      "AGOTADO"
+     :
+      (
+       inv.min>0 &&
+       inv.qty<=inv.min
+        ?
+         "STOCK BAJO"
+        :
+         "DISPONIBLE"
+      );
+
+
+   /* =================================================
+      GUARDAR SALIDA
+      ================================================= */
+
+   db.outgoingLines.push({
+
+    id:
+     String(
+      Number(next)+idx
+     ),
+
+    date:fecha,
+
+    time:hora,
+
+    code:x.code,
+
+    product:x.name,
+
+    brand:x.brand,
+
+    qty:x.qty,
+
+    reason:x.reason,
+
+    /* PERSONA QUE REALIZÓ LA SALIDA */
+
+    responsible:
+     currentUser
+      ?
+       currentUser.name
+      :
+       "—",
+
+    note:x.note,
+
+    status:"REGISTRADA",
+
+
+    /* =================================================
+       USUARIO QUE REALIZÓ LA OPERACIÓN
+       ================================================= */
+
+    usuarioId:
+     currentUser
+      ?
+       currentUser.id
+      :
+       "",
+
+    usuario:
+     currentUser
+      ?
+       currentUser.username
+      :
+       "",
+
+    usuarioNombre:
+     currentUser
+      ?
+       currentUser.name
+      :
+       "",
+
+
+    /* =================================================
+       ADMINISTRADOR QUE AUTORIZÓ
+       ================================================= */
+
+    autorizadoPorId:
+     autorizadoPor
+      ?
+       autorizadoPor.id
+      :
+       (
+        isAdmin()
+         ?
+          currentUser.id
+         :
+          ""
+       ),
+
+
+    autorizadoPor:
+     autorizadoPor
+      ?
+       autorizadoPor.username
+      :
+       (
+        isAdmin()
+         ?
+          currentUser.username
+         :
+          ""
+       ),
+
+
+    autorizadoPorNombre:
+     autorizadoPor
+      ?
+       autorizadoPor.name
+      :
+       (
+        isAdmin()
+         ?
+          currentUser.name
+         :
+          ""
+       )
+
+   });
+
+  }
+ );
+
+
+ /* =====================================================
+    AUDITORÍA
+    ===================================================== */
+
+ if(salidaEspecial){
+
+  const motivos=
+   [
+    ...new Set(
+     outCart.map(
+      x=>x.reason
+     )
+    )
+   ].join(", ");
+
+
+  if(isAdmin()){
+
+   addAudit(
+    "SALIDA ESPECIAL REGISTRADA",
+
+    `Salida por ${motivos}. `+
+    `Registrada y autorizada directamente por administrador `+
+    `${currentUser.username}.`
+   );
+
+
+  }else{
+
+   addAudit(
+    "SALIDA ESPECIAL AUTORIZADA",
+
+    `Salida por ${motivos}. `+
+    `Realizada por ${currentUser.username} `+
+    `y autorizada por administrador `+
+    `${autorizadoPor.username}.`
+   );
+
+  }
+
+
+ }else{
+
+
+  addAudit(
+   "SALIDA REGISTRADA",
+
+   `Se registraron ${outCart.length} salida(s) de inventario.`
+  );
+
+
+ }
+
+
+ /* =====================================================
+    GUARDAR CAMBIOS
+    ===================================================== */
+
+ save();
+
+
+ /* =====================================================
+    LIMPIAR
+    ===================================================== */
+
+ outCart=[];
+
+ clearOutProductOnly();
+
+ renderOutCart();
+
+ renderOutHistory();
+
+
+ /* =====================================================
+    MENSAJE FINAL
+    ===================================================== */
+
+ toast(
+  salidaEspecial
+   ?
+    "Salida registrada y autorizada correctamente."
+   :
+    "Salida(s) registradas e inventario actualizado."
+ );
+
+}
+function renderOutHistory(){
+
+ ensureOutStorage();
+
+ /*
+  * =====================================================
+  * SALIDAS MANUALES
+  * =====================================================
+  */
+
+ const manuales=
+  Array.isArray(db.outgoingLines)
+   ?
+    db.outgoingLines.map(x=>({
+
+     id:x.id,
+
+     date:x.date||"",
+
+     time:x.time||"",
+
+     code:x.code||"",
+
+     product:x.product||"",
+
+     qty:Number(x.qty)||0,
+
+     reason:x.reason||"",
+
+     responsible:
+      x.responsible||
+      x.usuarioNombre||
+      "—",
+
+     note:x.note||"",
+
+     realizadoPor:
+      x.usuarioNombre||
+      x.usuario||
+      x.responsible||
+      "—",
+
+     autorizadoPor:
+      x.autorizadoPorNombre||
+      x.autorizadoPor||
+      "—",
+
+     tipo:"SALIDA"
+
+    }))
+   :
+    [];
+
+
+ /*
+  * =====================================================
+  * SALIDAS GENERADAS POR VENTAS
+  * =====================================================
+  */
+
+ const ventas=
+  Array.isArray(db.salidas)
+   ?
+    db.salidas.map(x=>({
+
+     id:x.id,
+
+     date:x.date||"",
+
+     time:x.time||"",
+
+     code:x.code||"",
+
+     product:x.product||
+            x.name||
+            "",
+
+     qty:Number(x.qty)||0,
+
+     reason:
+      x.motivo||
+      "VENTA",
+
+     responsible:
+      x.usuarioNombre||
+      x.usuario||
+      "—",
+
+     note:
+      x.status==="VENDIDO"
+       ?
+        "Salida generada por venta"
+       :
+        "",
+
+     realizadoPor:
+      x.usuarioNombre||
+      x.usuario||
+      "—",
+
+     autorizadoPor:"—",
+
+     tipo:"VENTA"
+
+    }))
+   :
+    [];
+
+
+ /*
+  * =====================================================
+  * UNIR LAS DOS FUENTES
+  * =====================================================
+  */
+
+ const rows=[
+  ...manuales,
+  ...ventas
+ ];
+
+
+ /*
+  * =====================================================
+  * ORDENAR DEL MÁS RECIENTE AL MÁS ANTIGUO
+  * =====================================================
+  */
+
+ rows.sort(
+  (a,b)=>{
+
+   const fechaA=
+    `${a.date||""} ${a.time||""}`;
+
+   const fechaB=
+    `${b.date||""} ${b.time||""}`;
+
+   return fechaB.localeCompare(fechaA);
+
+  }
+ );
+
+
+ /*
+  * =====================================================
+  * MOSTRAR HISTORIAL
+  * =====================================================
+  */
+
+ const tbody=
+  document.getElementById("outHistory");
+
+
+ if(!tbody)return;
+
+
+ tbody.innerHTML=
+  rows.map(
+   x=>`
+
+    <tr>
+
+     <td>
+      ${escapeHtml(String(x.id||""))}
+     </td>
+
+     <td>
+      ${escapeHtml(x.date||"")}
+      ${
+       x.time
+        ?
+         `<div class="muted"
+               style="font-size:10px">
+           ${escapeHtml(x.time)}
+          </div>`
+        :
+         ""
+      }
+     </td>
+
+     <td>
+      <b>
+       ${escapeHtml(x.product||"")}
+      </b>
+
+      ${
+       x.code
+        ?
+         `<div class="muted"
+               style="font-size:10px">
+           Código:
+           ${escapeHtml(String(x.code))}
+          </div>`
+        :
+         ""
+      }
+     </td>
+
+     <td>
+      ${Number(x.qty)||0}
+     </td>
+
+     <td>
+
+      <span class="badge ${
+       String(x.reason||"")
+        .toUpperCase()==="VENTA"
+        ?
+         "green"
+        :
+         "yellow"
+      }">
+
+       ${escapeHtml(x.reason||"")}
+
+      </span>
+
+     </td>
+
+     <td>
+      ${escapeHtml(x.responsible||"—")}
+     </td>
+
+     <td>
+      ${escapeHtml(x.note||"—")}
+     </td>
+
+     <td>
+      ${escapeHtml(x.realizadoPor||"—")}
+     </td>
+
+     <td>
+      ${escapeHtml(x.autorizadoPor||"—")}
+     </td>
+
+    </tr>
+
+   `
+  ).join("");
+
+
+ /*
+  * =====================================================
+  * SI NO HAY REGISTROS
+  * =====================================================
+  */
+
+ if(!rows.length){
+
+  tbody.innerHTML=`
+
+   <tr>
+
+    <td
+     colspan="9"
+     class="empty">
+
+     No hay salidas registradas.
+
+    </td>
+
+   </tr>
+
+  `;
+
+ }
+
+}
+
+function refreshOutModule(){
+
+ ensureOutStorage();
+
+ renderOutCart();
+
+ renderOutHistory();
+
+}
+
+
+function renderInventory(){
+
+ document.getElementById("inventoryRows").innerHTML=
+
+  db.inventory.map(
+   x=>`
+
+    <tr>
+
+     <td>${x.code}</td>
+
+     <td>${x.name}</td>
+
+     <td>${x.brand}</td>
+
+     <td>${escapeHtml(x.model||"")}</td>
+
+     <td>${x.category}</td>
+
+     <td>${x.qty}</td>
+
+     <td>${money(x.cost)}</td>
+
+     <td>${money(x.sale)}</td>
+
+     <td>
+
+      <span class="badge ${
+       x.qty===0
+       ?"red"
+       :
+       x.min>0&&x.qty<=x.min
+       ?"yellow"
+       :
+       "green"
+      }">
+
+       ${x.status}
+
+      </span>
+
+     </td>
+
+    </tr>
+
+   `
+  ).join("");
+
+}
+
+
+function fillSelects(){
+
+ //=========================================================
+ // VENDEDORES
+ //=========================================================
+
+ document.getElementById("seller").innerHTML=
+
+  db.sellers
+   .filter(
+    x=>x.status==="ACTIVO"
+   )
+   .map(
+    x=>
+     `<option value="${escapeHtml(x.name)}">
+       ${escapeHtml(x.name)}
+      </option>`
+   )
+   .join("");
+
+
+ //=========================================================
+ // CLIENTES
+ //=========================================================
+
+ document.getElementById("client").innerHTML=
+
+  `<option value="">
+    Consumidor final
+   </option>`
+  +
+  db.clients
+   .filter(
+    x=>x.status==="ACTIVO"
+   )
+   .sort(
+    (a,b)=>
+     String(a.name||"")
+      .localeCompare(
+       String(b.name||""),
+       "es",
+       {
+        sensitivity:"base"
+       }
+      )
+   )
+   .map(
+    x=>
+     `<option value="${escapeHtml(x.id)}">
+       ${escapeHtml(x.name)}
+      </option>`
+   )
+   .join("");
+
+}
+
+function renderReports(){
+
+ let rows=[...db.salesLines]
+  .sort((a,b)=>{
+
+   const fechaA=
+    `${a.date||""} ${a.time||""}`;
+
+   const fechaB=
+    `${b.date||""} ${b.time||""}`;
+
+   return fechaB.localeCompare(fechaA);
+
+  });
+
+
+ document.getElementById("reportRows").innerHTML=
+
+  rows.map(x=>`
+
+   <tr>
+
+    <td>
+     ${escapeHtml(String(x.id||""))}
+    </td>
+
+    <td>
+     ${escapeHtml(x.date||"")}
+    </td>
+
+    <td>
+     ${escapeHtml(x.name||"")}
+    </td>
+
+    <td>
+     ${Number(x.qty)||0}
+    </td>
+
+    <td>
+     ${money(x.total||0)}
+    </td>
+
+    <td>
+     ${escapeHtml(x.payment||"")}
+    </td>
+
+    <td>
+     ${escapeHtml(x.seller||"")}
+    </td>
+
+    <td>
+     ${escapeHtml(
+      x.client||
+      "CONSUMIDOR FINAL"
+     )}
+    </td>
+<td>
+  ${escapeHtml(
+    x.usuarioNombre ||
+    x.usuario ||
+    "—"
+  )}
+</td>
+
+   </tr>
+
+  `).join("")
+
+ ||
+
+  `
+   <tr>
+    <td colspan="9"
+        class="empty">
+
+     Sin ventas.
+
+    </td>
+   </tr>
+  `;
+
+}
+
+function refreshAll(){
+
+  ensureSaleStorage();
+  ensureSecurityStorage();
+
+  renderDashboard();
+  renderProducts();
+  renderInventory();
+  renderReports();
+
+  renderClients();
+
+  fillSelects();
+
+  renderUsers();
+  renderAudit();
+
+  refreshSaleModule();
+  refreshEntryModule();
+
+  // Actualizar módulo de salidas
+  refreshOutModule();
+
+}
+
+/* =========================================================
+   EVENTOS
+   ========================================================= */
+
+/*
+ * AQUÍ ESTABA EL ERROR:
+ *
+ * Antes:
+ *
+ * renderCart()
+ *
+ * pero esa función no existe.
+ *
+ * La función correcta es:
+ *
+ * renderCartExact()
+ *
+ * También actualizamos los totales.
+ */
+
+document.addEventListener(
+ "input",
+ e=>{
+
+  if(e.target.id==="prodSearch"){
+
+   renderProducts();
+
+  }
+
+
+  if(
+   ["discount","received"]
+   .includes(e.target.id)
+  ){
+
+   renderCartExact();
+
+   updateSaleTotals();
+
+  }
+
+ }
+);
+
+
+document.addEventListener(
+ "change",
+ e=>{
+
+  if(e.target.id==="eName"){
+
+   buscarDatosEntradaPorProducto();
+
+  }
+
+
+  if(
+   [
+    "eBuy",
+    "eGain",
+    "eMeasure",
+    "eContent"
+   ].includes(e.target.id)
+  ){
+
+   calcularEntradaVenta();
+
+  }
+
+ }
+);
+
+</script>
+
+
+<script>
+
+document.getElementById("today").textContent=
+ new Date().toLocaleDateString(
+  "es-CO",
+  {
+   weekday:"long",
+   day:"2-digit",
+   month:"long",
+   year:"numeric"
+  }
+);
+
+ensureSaleStorage();
+
+/* =========================================================
+   SEGURIDAD Y USUARIOS
+   ========================================================= */
+
+function ensureSecurityStorage(){
+
+  if(!Array.isArray(db.users))
+    db.users=[];
+
+  if(!Array.isArray(db.audit))
+    db.audit=[];
+
+
+  if(db.users.length===0){
+
+    db.users.push({
+
+      id:"1",
+      username:"ADMIN",
+      password:"1234",
+      name:"ADMINISTRADOR",
+      role:"ADMINISTRADOR",
+      status:"ACTIVO"
+
+    });
+
+    saveWithoutRefresh();
+
+  }
+
+}
+
+
+function saveWithoutRefresh(){
+
+  localStorage.setItem(
+    KEY,
+    JSON.stringify(db)
+  );
+
+}
+
+
+function findUser(username){
+
+  ensureSecurityStorage();
+
+  return db.users.find(
+    x=>
+      String(x.username||"")
+        .trim()
+        .toLowerCase()===
+
+      String(username||"")
+        .trim()
+        .toLowerCase()
+  );
+
+}
+
+
+function login(){
+
+  ensureSecurityStorage();
+
+
+  const username=
+    document
+      .getElementById("loginUser")
+      .value
+      .trim();
+
+
+  const password=
+    document
+      .getElementById("loginPassword")
+      .value;
+
+
+  if(!username){
+
+    toast("Ingresa el usuario.");
+
+    document
+      .getElementById("loginUser")
+      .focus();
+
+    return;
+
+  }
+
+
+  if(!password){
+
+    toast("Ingresa la contraseña.");
+
+    document
+      .getElementById("loginPassword")
+      .focus();
+
+    return;
+
+  }
+
+
+  const user=
+    findUser(username);
+
+
+  if(
+    !user ||
+    String(user.password)!==
+    String(password)
+  ){
+
+    toast(
+      "Usuario o contraseña incorrectos."
+    );
+
+    return;
+
+  }
+
+
+  if(user.status!=="ACTIVO"){
+
+    toast(
+      "Este usuario está inactivo."
+    );
+
+    return;
+
+  }
+
+
+  currentUser={
+
+    id:user.id,
+    username:user.username,
+    name:user.name,
+    role:user.role
+
+  };
+
+
+  addAudit(
+    "INICIO DE SESIÓN",
+    `Usuario ${user.username} inició sesión.`
+  );
+
+
+  document
+    .getElementById("loginScreen")
+    .classList.add("hidden");
+
+
+  document
+    .getElementById("app")
+    .classList.remove("hidden");
+
+
+  updateCurrentUserUI();
+
+  refreshAll();
+
+}
+
+
+function logout(){
+
+  if(!currentUser)
+    return;
+
+
+  addAudit(
+    "CIERRE DE SESIÓN",
+    `Usuario ${currentUser.username} cerró sesión.`
+  );
+
+
+  currentUser=null;
+
+
+  document
+    .getElementById("app")
+    .classList.add("hidden");
+
+
+  document
+    .getElementById("loginScreen")
+    .classList.remove("hidden");
+
+
+  document.getElementById("loginUser").value="";
+  document.getElementById("loginPassword").value="";
+
+  document
+    .getElementById("loginUser")
+    .focus();
+
+}
+
+
+function updateCurrentUserUI(){
+
+  if(!currentUser)
+    return;
+
+
+  const userName=
+    document.getElementById(
+      "currentUserName"
+    );
+
+
+  const userRole=
+    document.getElementById(
+      "currentUserRole"
+    );
+
+
+  if(userName){
+
+    userName.textContent=
+      currentUser.name||
+      currentUser.username;
+
+  }
+
+
+  if(userRole){
+
+    userRole.textContent=
+      currentUser.role;
+
+  }
+
+}
+
+
+function isAdmin(){
+
+  return !!currentUser &&
+    currentUser.role==="ADMINISTRADOR";
+
+}
+
+
+function addAudit(action,detail){
+
+  ensureSecurityStorage();
+
+
+  const now=new Date();
+
+
+  db.audit.push({
+
+    id:String(Date.now()),
+
+    date:now.toISOString().slice(0,10),
+
+    time:now.toLocaleTimeString(
+      "es-CO",
+      {
+        hour12:false
+      }
+    ),
+
+    userId:
+      currentUser?
+        currentUser.id:
+        "",
+
+    username:
+      currentUser?
+        currentUser.username:
+        "SISTEMA",
+
+    userName:
+      currentUser?
+        currentUser.name:
+        "SISTEMA",
+
+    role:
+      currentUser?
+        currentUser.role:
+        "SISTEMA",
+
+    action,
+
+    detail
+
+  });
+
+
+  saveWithoutRefresh();
+
+}
+
+
+// Escáner de cámara para Entradas y Ventas
+let cameraScannerInstance = null;
+let cameraScannerTarget = null;
+let cameraScannerBusy = false;
+
+async function openCameraScanner(target){
+ cameraScannerTarget = target;
+ cameraScannerBusy = false;
+ const modal = document.getElementById('cameraScannerModal');
+ const status = document.getElementById('cameraScanStatus');
+ modal.classList.add('open');
+ status.textContent = 'Solicitando acceso a la cámara…';
+ if (!window.isSecureContext && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+   status.textContent = 'Para usar la cámara, abre esta página desde una dirección HTTPS segura. Abrir el archivo directamente desde el celular puede bloquear el acceso a la cámara.';
+   return;
+ }
+ if (typeof Html5Qrcode === 'undefined') {
+   status.textContent = 'No se pudo cargar el lector. Revisa tu conexión a Internet e inténtalo de nuevo.';
+   return;
+ }
+ try {
+   if (cameraScannerInstance) {
+     try { await cameraScannerInstance.stop(); } catch(e) {}
+     try { cameraScannerInstance.clear(); } catch(e) {}
+   }
+   cameraScannerInstance = new Html5Qrcode('cameraReader');
+   await cameraScannerInstance.start(
+     { facingMode: 'environment' },
+     { fps: 10, qrbox: { width: 280, height: 140 }, aspectRatio: 1.777, formatsToSupport: [
+       Html5QrcodeSupportedFormats.EAN_13,
+       Html5QrcodeSupportedFormats.EAN_8,
+       Html5QrcodeSupportedFormats.CODE_128,
+       Html5QrcodeSupportedFormats.CODE_39,
+       Html5QrcodeSupportedFormats.UPC_A,
+       Html5QrcodeSupportedFormats.UPC_E,
+       Html5QrcodeSupportedFormats.ITF
+     ] },
+     async decodedText => {
+       if (cameraScannerBusy) return;
+       cameraScannerBusy = true;
+       const code = String(decodedText || '').trim();
+       status.textContent = 'Código leído: ' + code;
+       await closeCameraScanner();
+       if (cameraScannerTarget === 'entrada') {
+         document.getElementById('eSearch').value = code;
+         buscarEntradaPorCodigo();
+       } else {
+         document.getElementById('sSearch').value = code;
+         scanOrAddSale();
+       }
+     },
+     () => {}
+   );
+   status.textContent = 'Cámara activa. Enfoca el código de barras.';
+ } catch(err) {
+   const detalle = (err && err.message) ? ' Detalle: ' + err.message : '';
+   status.textContent = 'No se pudo abrir la cámara. Revisa los permisos del navegador, que ninguna otra aplicación esté usando la cámara y que la página esté en HTTPS.' + detalle;
+ }
+}
+
+async function closeCameraScanner(){
+ const modal = document.getElementById('cameraScannerModal');
+ modal.classList.remove('open');
+ if (cameraScannerInstance) {
+   try { if (cameraScannerInstance.isScanning) await cameraScannerInstance.stop(); } catch(e) {}
+   try { cameraScannerInstance.clear(); } catch(e) {}
+   cameraScannerInstance = null;
+ }
+}
+
+refreshAll();
+
+</script>
+
+</body>
+</html>
